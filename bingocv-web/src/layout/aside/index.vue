@@ -58,7 +58,8 @@ const resumeMenus = [
   { name: 'work', label: '工作经历', icon: 'solar:case-round-linear' },
   { name: 'skill', label: '技能特长', icon: 'solar:star-shine-linear' },
   { name: 'templates', label: '简历模板', icon: 'solar:documents-linear' },
-  { name: 'points', label: '积分中心', icon: 'solar:medal-ribbon-linear' }
+  { name: 'points', label: '积分中心', icon: 'solar:medal-ribbon-linear' },
+  { name: 'share', label: '简历分享', icon: 'solar:share-linear' }
 ];
 
 const manageMenus = [

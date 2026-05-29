@@ -71,6 +71,16 @@ const routes = [
                 }
             },
             {
+                path: '/share',
+                name: 'share',
+                component: () => import('@/views/share/index.vue'),
+                meta: {
+                    title: 'share',
+                    name: 'share',
+                    menu: true
+                }
+            },
+            {
                 path: '/user',
                 name: 'user',
                 component: () => import('@/views/user/index.vue'),
@@ -91,6 +101,11 @@ const routes = [
         path: '/register',
         name: 'register',
         component: () => import('@/views/register/index.vue')
+    },
+    {
+        path: '/s/:code',
+        name: 'public-share',
+        component: () => import('@/views/public-share/index.vue')
     },
     {
         path: '/:pathMatch(.*)*',
@@ -126,8 +141,9 @@ router.beforeEach((to, from, next) => {
     }
 
     const userInfo = localStorage.getItem('userInfo')
+    const publicPages = ['login', 'register', 'public-share']
 
-    if (!userInfo && to.name !== 'login' && to.name !== 'register') {
+    if (!userInfo && !publicPages.includes(to.name)) {
         return next({name: 'login'})
     }
 
