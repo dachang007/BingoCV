@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>生成页</title>
+		<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="../common/css/main.css" rel="stylesheet">
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.22.0/moment-with-locales.js"></script>
+	</head>
+	<body>
+		<div id="main">
+			<!-- 顶部导航栏 -->
+			<div class="top-bar">
+				<a class="brand" href="../generator/index.html">BingoCV</a>
+				<div class="user-area">
+					<div id="user-info-area" class="dropdown" style="display:none;">
+						<a class="user-dropdown-toggle" data-toggle="dropdown" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+							<img id="user-avatar" class="user-avatar" src="" />
+							<span id="user-name-display" class="user-name"></span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right">
+							<li><a href="javascript:void(0)" onclick="showProfile()"><span class="glyphicon glyphicon-user"></span> 个人信息</a></li>
+							<li><a href="javascript:void(0)" onclick="editPassword()"><span class="glyphicon glyphicon-lock"></span> 修改密码</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a href="javascript:void(0)" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> 退出登录</a></li>
+						</ul>
+					</div>
+					<div id="login-btn-area">
+						<a class="btn-auth" href="../login/index.html">登录</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 主内容区 -->
+			<div class="main-content container">
+				<div class="row">
+					<div id="window" class="col-xs-12 col-md-6 col-md-offset-3">
+						<div class="tab-content">
+							<!-- 第一步：基本信息 -->
+							<div id="d1" class="tab-pane fade in active">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading">
+										<h3 class="panel-title">第一步：填写你的基本信息（1/5）</h3>
+									</div>
+									<div class="panel-body">
+										<div class="center">
+											<div class="name"><div class="input-group"><span class="input-group-addon">姓名：</span><input type="text" class="form-control" id="user-name" placeholder="请输入"></div></div>
+											<div class="age"><div class="input-group"><span class="input-group-addon">年龄：</span><input type="number" class="form-control" id="user-age" placeholder="请输入"></div></div>
+											<div class="city"><div class="input-group"><span class="input-group-addon">城市：</span><input type="text" class="form-control" id="user-city" placeholder="请输入"></div></div>
+											<div class="address"><div class="input-group"><span class="input-group-addon">住址：</span><input type="text" class="form-control" id="user-address" placeholder="请输入"></div></div>
+											<div class="email"><div class="input-group"><span class="input-group-addon">邮箱：</span><input type="email" class="form-control" id="user-email" placeholder="请输入"></div></div>
+											<div class="phone"><div class="input-group"><span class="input-group-addon">手机：</span><input type="number" class="form-control" id="user-phone" placeholder="请输入"></div></div>
+											<div class="weixin"><div class="input-group"><span class="input-group-addon">微信：</span><input type="text" class="form-control" id="user-weixin" placeholder="请输入"></div></div>
+											<div class="qq"><div class="input-group"><span class="input-group-addon">ＱＱ：</span><input type="text" class="form-control" id="user-qq" placeholder="请输入"></div></div>
+											<div class="weibo"><div class="input-group"><span class="input-group-addon">微博：</span><input type="text" class="form-control" id="user-weibo" placeholder="请输入"></div></div>
+											<div class="sex">
+												<p class="cneter_title">性别</p>
+												<div class="center_content btn-group" data-toggle="buttons">
+													<label class="btn btn-primary" onclick="setSex('nan')"><input type="radio" name="sex" value="nan" id="sex1"> 男</label>
+													<label class="btn btn-primary" onclick="setSex('nv')"><input type="radio" name="sex" value="nv" id="sex2"> 女</label>
+												</div>
+											</div>
+											<div class="info">
+												<p class="cneter_title">个人简介</p>
+												<div class="center_content"><textarea class="form-control" id="user-description"></textarea></div>
+											</div>
+											<div class="submit"><div class="center_content"><a class="btn btn-info btn-block" href="#d2" data-toggle="tab">下一步</a></div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 第二步：教育经历 -->
+							<div id="d2" class="tab-pane fade">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading"><h3 class="panel-title">第二步：填写你的教育经历（2/5）</h3></div>
+									<div class="panel-body">
+										<div class="center">
+											<div class="name"><div class="input-group"><span class="input-group-addon">学校名称：</span><input type="text" class="form-control" id="edu-school" placeholder="请输入"></div></div>
+											<div class="age"><div class="input-group"><span class="input-group-addon">所学专业：</span><input type="text" class="form-control" id="edu-study" placeholder="请输入"></div></div>
+											<div class="date"><p class="cneter_title">入学日期</p><input type='date' class="form-control" id="edu-start" /></div>
+											<div class="date"><p class="cneter_title">毕业日期</p><input type='date' class="form-control" id="edu-end" /></div>
+											<div class="info"><p class="cneter_title">教育经历介绍</p><div class="center_content"><textarea class="form-control" id="edu-description"></textarea></div></div>
+											<div class="submit"><div class="center_content">
+												<a class="btn btn-info btn-block" onclick="saveEdu()" href="javascript:void(0)">继续增加教育经历</a>
+												<a class="btn btn-info btn-block" href="#d1" data-toggle="tab">上一步</a>
+												<a class="btn btn-info btn-block" href="#d3" onclick="eduClick()" data-toggle="tab">下一步</a>
+											</div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 第三步：工作经历 -->
+							<div id="d3" class="tab-pane fade">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading"><h3 class="panel-title">第三步：填写你的工作经历（3/5）</h3></div>
+									<div class="panel-body">
+										<div class="center">
+											<div class="name"><div class="input-group"><span class="input-group-addon">公司名称：</span><input type="text" class="form-control" id="work-company" placeholder="请输入"></div></div>
+											<div class="age"><div class="input-group"><span class="input-group-addon">职位名称：</span><input type="text" class="form-control" id="work-job" placeholder="请输入"></div></div>
+											<div class="date"><p class="cneter_title">开始日期</p><input type='date' class="form-control" id="work-start" /></div>
+											<div class="date"><p class="cneter_title">结束日期</p><input type='date' class="form-control" id="work-end" /></div>
+											<div class="info"><p class="cneter_title">工作经历介绍</p><div class="center_content"><textarea class="form-control" id="work-description"></textarea></div></div>
+											<div class="submit"><div class="center_content">
+												<a class="btn btn-info btn-block" onclick="saveWork()" href="javascript:void(0)">继续增加工作经历</a>
+												<a class="btn btn-info btn-block" href="#d2" data-toggle="tab">上一步</a>
+												<a class="btn btn-info btn-block" href="#d4" onclick="workClick()" data-toggle="tab">下一步</a>
+											</div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 第四步：技能 -->
+							<div id="d4" class="tab-pane fade">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading"><h3 class="panel-title">第四步：丰富你的技能列表（4/5）</h3></div>
+									<div class="panel-body">
+										<div class="center">
+											<div class="info"><p class="cneter_title">输入你的技能，多个技能通过空格隔开</p><div class="center_content"><textarea class="form-control" id="skill-keywords" placeholder="示例: Java 卖萌 吟诗 作对 唱歌 跳舞"></textarea></div></div>
+											<div class="submit"><div class="center_content">
+												<a class="btn btn-info btn-block" href="#d3" data-toggle="tab">上一步</a>
+												<a class="btn btn-info btn-block" href="#d5" data-toggle="tab">下一步</a>
+											</div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 第五步：特长 -->
+							<div id="d5" class="tab-pane fade">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading"><h3 class="panel-title">第五步：请描述你的两个特长领域（5/5）</h3></div>
+									<div class="panel-body">
+										<div class="center">
+											<div class="name"><span class="cneter_title">特长名称一：</span><div class="center_content"><input type="text" class="form-control" id="spec1-name" placeholder="请输入"></div></div>
+											<div class="info"><span class="cneter_title">特长描述一：</span><div class="center_content"><textarea class="form-control" id="spec1-desc"></textarea></div></div>
+											<br>
+											<div class="name"><span class="cneter_title">特长名称二：</span><div class="center_content"><input type="text" class="form-control" id="spec2-name" placeholder="请输入"></div></div>
+											<div class="info"><span class="cneter_title">特长描述二：</span><div class="center_content"><textarea class="form-control" id="spec2-desc"></textarea></div></div>
+											<br>
+											<div class="submit"><div class="center_content">
+												<a class="btn btn-info btn-block" href="#d4" data-toggle="tab">上一步</a>
+												<a class="btn btn-info btn-block" href="#d6" onclick="submitClick()" data-toggle="tab">开始生成个人主页</a>
+											</div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- 第六步：结果 -->
+							<div id="d6" class="tab-pane fade">
+								<div class="panel panel-default panel_content">
+									<div class="panel-heading"><h3 class="panel-title" id="result-title">正在生成主页...</h3></div>
+									<div class="panel-body">
+										<div class="center">
+											<h1 id="result-heading">正在生成主页...</h1>
+											<h3 id="result-content"></h3>
+											<br>
+											<div class="submit"><div class="center_content"><a class="btn btn-info btn-block" href="javascript:window.location.reload()">再生成一个</a></div></div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- <script src="../common/layer/layer.js"></script> -->
+    <script src="js/index.js"></script>
+	</body>
+</html>

@@ -1,0 +1,92 @@
+# Compiled output
+target/
+build/
+dist/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven wrapper generated binary
+.mvn/wrapper/maven-wrapper.jar
+
+# Frontend dependencies and builds
+node_modules/
+bingocv-web/node_modules/
+bingocv-web/dist/
+bingocv-web/.vite/
+bingocv-web/.output/
+bingocv-web/.cache/
+bingocv-web/coverage/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Environment and local config
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.yaml
+application-local.properties
+src/main/resources/application-local.yml
+src/main/resources/application-local.yaml
+src/main/resources/application-local.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# IDE - Eclipse / STS
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# IDE - VS Code
+.vscode/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+~$*
+
+# Keep source nested build/target folders if any are intentionally committed
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/

@@ -1,0 +1,370 @@
+/* ===== v-cloak：隐藏未编译的Vue模板，防止{{ }}闪烁 ===== */
+[v-cloak] { display: none !important; }
+
+/* ===== 顶部导航栏 ===== */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+}
+.top-bar .brand {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1dc797;
+}
+.top-bar .user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.top-bar .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #1dc797;
+}
+.top-bar .user-name {
+    font-size: 14px;
+    color: #333;
+}
+.top-bar .btn-logout {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 3px 12px;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+.top-bar .btn-logout:hover {
+    border-color: #1dc797;
+    color: #1dc797;
+}
+.top-bar .btn-auth {
+    background: #1dc797;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    padding: 6px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: 0.3s;
+}
+.top-bar .btn-auth:hover {
+    background: #2fa080;
+}
+
+/* ===== 主内容区偏移（给顶部栏留空间）===== */
+.main-content {
+    margin-top: 60px;
+    transition: margin-right 0.3s;
+}
+.main-content.panel-open {
+    margin-right: 420px;
+}
+
+/* ===== 右侧登录/注册面板 ===== */
+.auth-side-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100vh;
+    background: linear-gradient(200deg, #37e2b2, #2fa080);
+    z-index: 200;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* 默认隐藏，Vue挂载后通过 :class='open' 显示 */
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+.auth-side-panel.open {
+    transform: translateX(0);
+}
+.auth-side-panel.fullscreen {
+    width: 100%;
+    transform: translateX(0);
+}
+
+/* 面板头部（关闭/全屏按钮）*/
+.panel-header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 15px;
+    gap: 10px;
+}
+.panel-header button {
+    background: rgba(255,255,255,0.3);
+    border: none;
+    color: #fff;
+    border-radius: 3px;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    letter-spacing: 1px;
+    width: auto;
+    margin-top: 0;
+}
+.panel-header button:hover {
+    background: rgba(255,255,255,0.5);
+}
+
+/* ===== 熊猫装饰（缩小版）===== */
+.panda-mini {
+    position: relative;
+    width: 120px;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+.panda-mini .face {
+    width: 120px;
+    height: 120px;
+    background-color: #fff;
+    border-radius: 100%;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 1;
+}
+.panda-mini .ear {
+    width: 42px;
+    height: 42px;
+    background-color: #000;
+    border-radius: 100%;
+    position: absolute;
+    top: -6px;
+}
+.panda-mini .ear.right { right: 0; }
+.panda-mini .eye-shadow {
+    width: 30px;
+    height: 48px;
+    background-color: #000;
+    border-radius: 50%;
+    position: absolute;
+    top: 24px;
+}
+.panda-mini .eye-shadow.left { transform: rotate(45deg); left: 18px; }
+.panda-mini .eye-shadow.right { transform: rotate(-45deg); right: 18px; }
+.panda-mini .eye-white {
+    width: 18px;
+    height: 18px;
+    background-color: #fff;
+    border-radius: 100%;
+    position: absolute;
+    top: 40px;
+}
+.panda-mini .eye-white.left { left: 23px; }
+.panda-mini .eye-white.right { right: 23px; }
+.panda-mini .eye-ball {
+    width: 12px;
+    height: 12px;
+    background-color: #000;
+    border-radius: 100%;
+    position: absolute;
+    left: 3px;
+    top: 3px;
+}
+.panda-mini .nose {
+    width: 21px;
+    height: 12px;
+    background-color: #000;
+    position: absolute;
+    left: 0; right: 0;
+    margin: auto;
+    bottom: 39px;
+    border-radius: 25px 25px 36px 36px / 18px 18px 36px 36px;
+}
+.panda-mini .mouth {
+    width: 40px;
+    height: 15px;
+    border-bottom: 5px solid #000;
+    border-radius: 50%;
+    position: absolute;
+    left: 0; right: 0;
+    margin: auto;
+    bottom: 20px;
+}
+
+/* ===== 登录/注册表单框 ===== */
+.auth-box {
+    width: 85%;
+    max-width: 360px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    margin: 15px 0 30px;
+    padding: 25px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    transition: 0.3s;
+}
+.auth-box.up {
+    transform: translateY(-30px);
+}
+.auth-box h2 {
+    color: #1dc797;
+    font-weight: normal;
+    font-size: 20px;
+    margin: 0 0 5px;
+}
+.auth-box .ipt-box {
+    width: 90%;
+    margin-top: 18px;
+    position: relative;
+}
+.auth-box .ipt-box input {
+    width: 100%;
+    height: 35px;
+    border: none;
+    border-bottom: 1px solid #bbb;
+    text-indent: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+.auth-box .ipt-box label {
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    font-size: 14px;
+    color: #888;
+    transition: 0.3s;
+    pointer-events: none;
+}
+.auth-box .ipt-box input:focus,
+.auth-box .ipt-box input:valid {
+    border-color: #1dc797;
+    box-shadow: 0 1px #1dc797;
+}
+.auth-box .ipt-box input:focus ~ label,
+.auth-box .ipt-box input:valid ~ label {
+    color: #1dc797;
+    font-size: 12px;
+    transform: translateY(-15px);
+}
+.auth-box button {
+    width: 150px;
+    height: 40px;
+    background-color: #1dc797;
+    border: none;
+    border-radius: 3px;
+    margin-top: 20px;
+    color: #fff;
+    letter-spacing: 8px;
+    text-indent: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.auth-box button:hover {
+    letter-spacing: 20px;
+    text-indent: 20px;
+    background-color: #2fa080;
+}
+.toggle-text {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #888;
+}
+.toggle-text a {
+    color: #1dc797;
+    text-decoration: none;
+}
+.toggle-text a:hover {
+    text-decoration: underline;
+}
+.auth-error {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* ===== 全屏模式下的熊猫（放大）===== */
+.auth-side-panel.fullscreen .panda-mini {
+    width: 180px;
+    margin-top: 30px;
+}
+.auth-side-panel.fullscreen .panda-mini .face {
+    width: 180px;
+    height: 180px;
+}
+.auth-side-panel.fullscreen .panda-mini .ear {
+    width: 60px;
+    height: 60px;
+}
+.auth-side-panel.fullscreen .panda-mini .eye-shadow {
+    width: 45px;
+    height: 70px;
+    top: 36px;
+}
+.auth-side-panel.fullscreen .panda-mini .eye-shadow.left { left: 27px; }
+.auth-side-panel.fullscreen .panda-mini .eye-shadow.right { right: 27px; }
+.auth-side-panel.fullscreen .panda-mini .eye-white {
+    width: 26px;
+    height: 26px;
+    top: 60px;
+}
+.auth-side-panel.fullscreen .panda-mini .eye-white.left { left: 34px; }
+.auth-side-panel.fullscreen .panda-mini .eye-white.right { right: 34px; }
+.auth-side-panel.fullscreen .panda-mini .eye-ball {
+    width: 18px;
+    height: 18px;
+}
+.auth-side-panel.fullscreen .panda-mini .nose {
+    width: 30px;
+    height: 18px;
+    bottom: 56px;
+}
+.auth-side-panel.fullscreen .panda-mini .mouth {
+    width: 58px;
+    height: 22px;
+    bottom: 30px;
+}
+.auth-side-panel.fullscreen .auth-box {
+    margin-top: 20px;
+}
+.auth-side-panel.fullscreen .auth-box.up {
+    transform: translateY(-60px);
+}
+
+/* ===== 遮罩层 ===== */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 150;
+    display: none;
+}
+.auth-overlay.show {
+    display: block;
+}
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 768px) {
+    .auth-side-panel {
+        width: 100%;
+    }
+    .auth-side-panel.open {
+        transform: translateX(0);
+    }
+    .main-content.panel-open {
+        margin-right: 0;
+    }
+}
