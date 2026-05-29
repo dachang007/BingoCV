@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.de5.yeoh.bingocv.mapper.ProfilesMapper">
+
+    <resultMap id="BaseResultMap" type="net.de5.yeoh.bingocv.model.domain.Profiles">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userid" column="userid" jdbcType="BIGINT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="photo" column="photo" jdbcType="VARCHAR"/>
+            <result property="age" column="age" jdbcType="INTEGER"/>
+            <result property="city" column="city" jdbcType="VARCHAR"/>
+            <result property="address" column="address" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="weixin" column="weixin" jdbcType="VARCHAR"/>
+            <result property="qq" column="qq" jdbcType="VARCHAR"/>
+            <result property="weibo" column="weibo" jdbcType="VARCHAR"/>
+            <result property="sex" column="sex" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userid,name,
+        photo,age,city,
+        address,email,phone,
+        weixin,qq,weibo,
+        sex,description,create_time,
+        update_time,deleted
+    </sql>
+</mapper>

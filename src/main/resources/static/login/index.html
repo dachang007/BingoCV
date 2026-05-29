@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+    <title>登录-bingoCV</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<div class="container">
+    <div class="panda">
+        <div class="ear left"></div>
+        <div class="ear right"></div>
+        <div class="face">
+            <div class="eye-shadow left"></div>
+            <div class="eye-white left">
+                <div class="eye-ball"></div>
+            </div>
+            <div class="eye-shadow right"></div>
+            <div class="eye-white right">
+                <div class="eye-ball"></div>
+            </div>
+            <div class="nose"></div>
+            <div class="mouth"></div>
+        </div>
+        <div class="body"></div>
+        <div class="foot left">
+            <div class="sole"></div>
+        </div>
+        <div class="foot right">
+            <div class="sole"></div>
+        </div>
+    </div>
+    <div class="login-box">
+        <div class="hand left"></div>
+        <div class="hand right"></div>
+        <h1>用户登录</h1>
+        <div class="ipt-box">
+            <input type="text" id="login-username" required>
+            <label>用户名</label>
+        </div>
+        <div class="ipt-box">
+            <div class="password-container">
+                <input type="password" id="login-password" required>
+                <label>密码</label>
+                <span id="toggleLoginPassword" class="eye-style" onclick="toggleLoginPassword()">👁️</span>
+            </div>
+        </div>
+        <div class="ipt-box captcha-box">
+            <input type="text" id="login-captcha" required placeholder="请输入验证码，单机刷新">
+            <img class="loginCaptchaImg" id="loginCaptchaImg" src="/v1/captcha/image" onclick="refreshLoginCaptcha()" alt="验证码">
+        </div>
+        <div class="remember-box">
+            <label><input type="checkbox" id="rememberMe"> 记住我</label>
+        </div>
+        <div id="login-error" class="error-message"></div>
+        <button id="loginBtn" onclick="doLogin()">登录</button>
+        <p class="link-text">还没有账号？<a href="register.html">点击这里注册</a></p>
+    </div>
+</div>
+<script src="js/jquery-3.6.0.min.js"></script>
+<script src="js/script.js"></script>
+<script src="js/auth.js"></script>
+</body>
+
+</html>
