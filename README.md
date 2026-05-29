@@ -1,8 +1,21 @@
 # BingoCV
 
+<div align="center">
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Vue](https://img.shields.io/badge/Vue-3.x-green.svg)](https://vuejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-blue.svg)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-6.x-red.svg)](https://redis.io/)
+
+[English](README.md) | [中文](README.zh-CN.md)
+
 BingoCV is an open-source resume management system for personal resume data, template selection, points-based template redemption, and public or private resume sharing.
 
 The project currently includes a Spring Boot backend, a Vue 3 admin/frontend app, and MySQL initialization scripts for the core MVP.
+
+</div>
 
 ## Features
 

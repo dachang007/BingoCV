@@ -1,8 +1,21 @@
 # BingoCV
 
+<div align="center">
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Vue](https://img.shields.io/badge/Vue-3.x-green.svg)](https://vuejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-blue.svg)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-6.x-red.svg)](https://redis.io/)
+
+[English](README.md) | [中文](README.zh-CN.md)
+
 BingoCV 是一个开源个人简历管理系统，目标是提供从简历资料维护、模板选择、积分兑换，到公开/私密分享的一站式管理能力。
 
 当前项目包含 Spring Boot 后端、Vue 3 前端，以及 MySQL 初始化脚本。
+
+</div>
 
 ## 功能特性
 
