@@ -2,6 +2,7 @@ import axios from "axios";
 import router from "@/router";
 import i18n from "@/i18n/index.js";
 import {useSettingStore} from "@/store/setting.js";
+import {ElMessage} from "element-plus";
 
 let http = axios.create({
     baseURL: import.meta.env.VITE_BASE_URL
@@ -38,9 +39,11 @@ http.interceptors.response.use((res) => {
                 reject(data);
             } else if (data.code === 600) {
                 const url = res.config.url || '';
+                // 登录/注册/验证码请求，直接reject让调用方处理错误提示
                 if (url.includes('/login') || url.includes('/register') || url.includes('/captcha')) {
                     reject(data);
                 } else {
+                    // 其他请求，显示未登录提示并跳转
                     ElMessage({
                         message: data.message || '您还未登录，请先登录',
                         type: 'error',
@@ -49,7 +52,7 @@ http.interceptors.response.use((res) => {
                         repeatNum: -4,
                     })
                     localStorage.removeItem('userInfo')
-                    router.replace('/login')
+                    router.replace('/admin/login')
                     reject(data)
                 }
             } else if (data.code === 401) {
@@ -61,7 +64,7 @@ http.interceptors.response.use((res) => {
                     repeatNum: -4,
                 })
                 localStorage.removeItem('userInfo')
-                router.replace('/login')
+                router.replace('/admin/login')
                 reject(data)
             } else if (data.code === 403) {
                 ElMessage({

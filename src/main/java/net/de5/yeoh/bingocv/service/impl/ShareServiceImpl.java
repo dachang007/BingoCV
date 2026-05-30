@@ -32,8 +32,9 @@ import java.util.stream.Collectors;
 @Service
 public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements ShareService {
 
-    private static final String PUBLIC = "PUBLIC";
-    private static final String PRIVATE = "PRIVATE";
+    // 分享类型常量
+    private static final String PUBLIC = "PUBLIC";   // 公开分享：无需密码即可访问
+    private static final String PRIVATE = "PRIVATE"; // 私密分享：需要密码才能访问
 
     @Autowired
     private ShareAccessService shareAccessService;

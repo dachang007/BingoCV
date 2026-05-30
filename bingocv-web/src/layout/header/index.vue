@@ -38,7 +38,7 @@
               {{ userStore.user.email }}
             </div>
             <div class="detail-user-type">
-              <el-tag>{{ userStore.user.role.name }}</el-tag>
+              <el-tag>{{ userStore.user.role.name === 'admin' ? '管理员' : userStore.user.role.name === 'user' ? '普通用户' : userStore.user.role.name }}</el-tag>
             </div>
             <div class="action-info">
               <div>
@@ -245,11 +245,23 @@ function clickLogout() {
   logout().then(() => {
     localStorage.removeItem("userInfo")
     localStorage.removeItem("token")
-    router.replace('/login')
-  }).catch(() => {
+    ElMessage({
+      message: t('logoutSuccess'),
+      type: 'success',
+      plain: true,
+    })
+    router.replace('/admin/login')
+  }).catch((err) => {
+    // 即使后端返回错误，也清除本地状态并跳转登录页
     localStorage.removeItem("userInfo")
     localStorage.removeItem("token")
-    router.replace('/login')
+    const errorMsg = err.msg || err.message || t('logoutFailed')
+    ElMessage({
+      message: errorMsg,
+      type: 'warning',
+      plain: true,
+    })
+    router.replace('/admin/login')
   }).finally(() => {
     logoutLoading.value = false
   })

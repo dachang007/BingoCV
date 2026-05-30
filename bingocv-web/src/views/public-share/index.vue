@@ -1,19 +1,21 @@
 <template>
   <main class="public-page">
+    <!-- 密码验证面板 -->
     <section v-if="needPassword" class="password-panel">
-      <h1>Private Resume</h1>
-      <p>This resume is protected. Enter the access password to continue.</p>
+      <h1>{{ $t('privateResumeTitle') }}</h1>
+      <p>{{ $t('privateResumeDesc') }}</p>
       <div class="password-row">
-        <el-input v-model="password" show-password placeholder="Access password" @keyup.enter="loadResume" />
-        <el-button type="primary" :loading="loading" @click="loadResume">Open</el-button>
+        <el-input v-model="password" show-password :placeholder="$t('accessPassword')" @keyup.enter="loadResume" />
+        <el-button type="primary" :loading="loading" @click="loadResume">{{ $t('openBtn') }}</el-button>
       </div>
     </section>
 
+    <!-- 简历内容面板 -->
     <section v-else-if="resume" class="resume-sheet">
       <header class="resume-header">
         <div>
-          <h1>{{ resume.profile?.name || resume.share?.title || 'BingoCV Resume' }}</h1>
-          <p>{{ resume.profile?.description || 'Shared with BingoCV' }}</p>
+          <h1>{{ resume.profile?.name || resume.share?.title || $t('defaultResumeTitle') }}</h1>
+          <p>{{ resume.profile?.description || $t('sharedWithBingoCV') }}</p>
         </div>
         <div class="contact">
           <span v-if="resume.profile?.city">{{ resume.profile.city }}</span>
@@ -22,7 +24,7 @@
         </div>
       </header>
 
-      <section-block title="Work Experience" :items="resume.workList">
+      <section-block :title="$t('workExperience')" :items="resume.workList">
         <template #default="{ item }">
           <h3>{{ item.company }} · {{ item.job }}</h3>
           <p class="time">{{ item.start }} - {{ item.end }}</p>
@@ -30,7 +32,7 @@
         </template>
       </section-block>
 
-      <section-block title="Education" :items="resume.educationList">
+      <section-block :title="$t('education')" :items="resume.educationList">
         <template #default="{ item }">
           <h3>{{ item.school }} · {{ item.study }}</h3>
           <p class="time">{{ item.start }} - {{ item.end }}</p>
@@ -39,13 +41,13 @@
       </section-block>
 
       <section v-if="resume.skill?.keywords" class="section">
-        <h2>Skills</h2>
+        <h2>{{ $t('skills') }}</h2>
         <div class="tags">
           <el-tag v-for="item in skillTags" :key="item" effect="plain">{{ item }}</el-tag>
         </div>
       </section>
 
-      <section-block title="Highlights" :items="resume.specialtyList">
+      <section-block :title="$t('highlights')" :items="resume.specialtyList">
         <template #default="{ item }">
           <h3>{{ item.name }}</h3>
           <p>{{ item.description }}</p>
@@ -53,9 +55,10 @@
       </section-block>
     </section>
 
+    <!-- 加载中面板 -->
     <section v-else class="password-panel">
-      <h1>Loading Resume</h1>
-      <p>Please wait a moment.</p>
+      <h1>{{ $t('loadingResume') }}</h1>
+      <p>{{ $t('pleaseWait') }}</p>
     </section>
   </main>
 </template>
@@ -120,8 +123,8 @@ onMounted(loadResume);
 .password-panel {
   max-width: 920px;
   margin: 0 auto;
-  background: #fff;
-  border: 1px solid #e6eaf0;
+  background: var(--el-bg-color);
+  border: 1px solid var(--light-border);
   border-radius: 8px;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
@@ -140,7 +143,7 @@ onMounted(loadResume);
   justify-content: space-between;
   gap: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #edf0f5;
+  border-bottom: 1px solid var(--light-border);
 }
 
 h1,
@@ -186,7 +189,7 @@ p {
 
 .entry {
   padding: 16px 0;
-  border-top: 1px solid #edf0f5;
+  border-top: 1px solid var(--light-border);
 }
 
 .entry:first-of-type {

@@ -7,7 +7,7 @@ const routes = [
     {
         path: '/',
         name: 'layout',
-        redirect: '/profiles',
+        redirect: '/profiles',  // TODO: 改为简历生成/预览页
         component: () => import('@/layout/index.vue'),
         children: [
             {
@@ -93,7 +93,7 @@ const routes = [
         ]
     },
     {
-        path: '/login',
+        path: '/admin/login',
         name: 'login',
         component: () => import('@/views/login/index.vue')
     },

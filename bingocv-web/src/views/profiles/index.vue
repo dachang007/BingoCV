@@ -173,8 +173,8 @@ h2 {
 
 .photo-panel,
 .form-panel {
-  background: #fff;
-  border: 1px solid #edf0f5;
+  background: var(--el-bg-color);
+  border: 1px solid var(--light-border);
   border-radius: 8px;
   padding: 20px;
 }

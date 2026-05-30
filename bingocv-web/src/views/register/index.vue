@@ -111,7 +111,7 @@ const handleRegister = async () => {
     try {
         await register(form.value.username, form.value.password, form.value.captcha, captchaId.value);
         ElMessage.success(t('registerSuccess'));
-        router.push('/login');
+        router.push('/admin/login');
     } catch (error) {
         ElMessage.error(error.msg || error.message || t('registerFailed'));
         refreshCaptcha();
@@ -121,7 +121,7 @@ const handleRegister = async () => {
 };
 
 const goToLogin = () => {
-    router.push('/login');
+    router.push('/admin/login');
 };
 
 onMounted(() => {
@@ -139,7 +139,7 @@ onMounted(() => {
 }
 
 .register-box {
-    background: #fff;
+    background: var(--el-bg-color);
     border-radius: 16px;
     padding: 40px;
     width: 100%;
@@ -159,7 +159,7 @@ onMounted(() => {
 
 .logo-section h1 {
     font-size: 28px;
-    color: #333;
+    color: var(--el-text-color-primary);
     margin: 0;
 }
 
@@ -170,7 +170,7 @@ onMounted(() => {
 .form-group label {
     display: block;
     font-size: 14px;
-    color: #555;
+    color: var(--el-text-color-regular);
     margin-bottom: 8px;
     font-weight: 500;
 }
@@ -178,9 +178,11 @@ onMounted(() => {
 .form-group input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--light-border);
     border-radius: 8px;
     font-size: 14px;
+    color: var(--el-text-color-primary);
+    background: var(--el-bg-color);
     box-sizing: border-box;
     transition: border-color 0.3s;
 }
@@ -222,7 +224,7 @@ onMounted(() => {
     border-radius: 8px;
     cursor: pointer;
     object-fit: contain;
-    background: #f8f9fa;
+    background: var(--extra-light-fill);
 }
 
 .agree-group {
@@ -234,7 +236,7 @@ onMounted(() => {
     align-items: flex-start;
     gap: 8px;
     font-size: 13px;
-    color: #666;
+    color: var(--el-text-color-regular);
     cursor: pointer;
     line-height: 1.5;
 }
@@ -276,7 +278,7 @@ onMounted(() => {
 
 .login-link {
     text-align: center;
-    color: #666;
+    color: var(--el-text-color-regular);
     font-size: 14px;
     margin-top: 20px;
 }

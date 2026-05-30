@@ -35,7 +35,7 @@
             <el-checkbox v-model="form.rememberMe" label="记住我" />
           </div>
           <el-button class="btn" type="primary" @click="submit" :loading="loginLoading">
-            {{ $t('loginBtn') }}
+            {{ $t('登录') }}
           </el-button>
           <div class="switch" @click="goToRegister">{{ $t('noAccount') }} <span>{{ $t('regSwitch') }}</span></div>
         </div>
@@ -201,7 +201,7 @@ const submit = () => {
 }
 
 .container {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--el-bg-color);
   padding-left: 40px;
   padding-right: 40px;
   display: flex;
@@ -209,7 +209,7 @@ const submit = () => {
   justify-content: center;
   width: 450px;
   height: 100%;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 1px solid var(--light-border);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   @media (max-width: 1024px) {
     padding: 20px 18px;
@@ -217,7 +217,7 @@ const submit = () => {
     margin-left: 18px;
   }
   @media (max-width: 767px) {
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--light-border);
     padding: 20px 18px;
     border-radius: 6px;
     height: fit-content;
@@ -235,7 +235,7 @@ const submit = () => {
   .form-desc {
     margin-top: 5px;
     margin-bottom: 18px;
-    color: #999;
+    color: var(--form-desc-color);
   }
 
   .form-title {
@@ -256,11 +256,13 @@ const submit = () => {
   :deep(.el-input__wrapper) {
     border-radius: 6px;
     background: var(--el-bg-color);
+    --el-input-text-color: var(--el-text-color-primary);
   }
 
   .email-input :deep(.el-input__wrapper) {
     border-radius: 6px 0 0 6px;
     background: var(--el-bg-color);
+    --el-input-text-color: var(--el-text-color-primary);
   }
 
   .el-input {
@@ -270,6 +272,7 @@ const submit = () => {
 
     :deep(.el-input__inner) {
       height: 36px;
+      color: var(--el-text-color-primary);
     }
   }
 }
@@ -335,13 +338,13 @@ const submit = () => {
   display: flex;
   gap: 10px;
   margin-bottom: 18px;
-  
+    
   .captcha-wrapper {
     width: 120px;
     height: 36px;
     border-radius: 6px;
     cursor: pointer;
-    background: #f8f9fa;
+    background: var(--extra-light-fill);
     display: flex;
     align-items: center;
     justify-content: center;

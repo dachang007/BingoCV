@@ -145,7 +145,7 @@ h2 {
 }
 
 .table {
-  border: 1px solid #edf0f5;
+  border: 1px solid var(--light-border);
   border-radius: 8px;
 }
 
