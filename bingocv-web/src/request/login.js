@@ -15,7 +15,7 @@ export function login(username, password, captcha, captchaId) {
         password: password,
         captcha: captcha,
         captchaId: captchaId
-    }, {noMsg: true})
+    })
 }
 
 /**
@@ -42,7 +42,7 @@ export function register(username, password, captcha, captchaId) {
         password: password,
         captcha: captcha,
         captchaId: captchaId
-    }, {noMsg: true})
+    })
 }
 
 /**
