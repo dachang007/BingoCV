@@ -18,4 +18,11 @@ public interface EduService extends IService<Edu> {
      * @return 保存后的列表
      */
     List<Edu> add(List<Edu> eduList);
+
+    /**
+     * 根据用户ID查询教育经历列表
+     * @param userId 用户ID
+     * @return 教育经历列表
+     */
+    List<Edu> listByUserId(Long userId);
 }

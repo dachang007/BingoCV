@@ -34,7 +34,7 @@
           <el-table-column label="角色" prop="role" width="100">
             <template #default="props">
               <el-tag :type="props.row.role === 'ADMIN' ? 'danger' : 'primary'">
-                {{ props.row.role }}
+                {{ props.row.role === 'ADMIN' ? '管理员' : '普通用户' }}
               </el-tag>
             </template>
           </el-table-column>
@@ -55,6 +55,21 @@
               {{ props.row.lastLoginTime ? formatTime(props.row.lastLoginTime) : '-' }}
             </template>
           </el-table-column>
+          <el-table-column label="操作" width="160" align="center">
+            <template #default="props">
+              <div class="action-group">
+                <el-button text size="small" @click="viewUser(props.row)">查看</el-button>
+                <el-button 
+                  text 
+                  size="small" 
+                  :type="props.row.status === 0 ? 'danger' : 'success'" 
+                  @click="toggleStatus(props.row)"
+                >
+                  {{ props.row.status === 0 ? '禁用' : '启用' }}
+                </el-button>
+              </div>
+            </template>
+          </el-table-column>
         </el-table>
         <div class="pagination" v-if="total > 10">
           <el-pagination
@@ -70,6 +85,41 @@
         </div>
       </div>
     </el-scrollbar>
+
+    <el-dialog title="用户详情" v-model="showDetail" width="500px">
+      <div v-if="currentUser" class="detail-form">
+        <div class="detail-row">
+          <span class="label">用户ID</span>
+          <span>{{ currentUser.userid }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">用户名</span>
+          <span>{{ currentUser.username }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">昵称</span>
+          <span>{{ currentUser.nickname || '-' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">角色</span>
+          <span>{{ currentUser.role === 'ADMIN' ? '管理员' : '普通用户' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">状态</span>
+          <el-tag :type="currentUser.status === 0 ? 'success' : 'danger'">
+            {{ currentUser.status === 0 ? '正常' : '禁用' }}
+          </el-tag>
+        </div>
+        <div class="detail-row">
+          <span class="label">注册时间</span>
+          <span>{{ formatTime(currentUser.createTime) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">最后登录</span>
+          <span>{{ currentUser.lastLoginTime ? formatTime(currentUser.lastLoginTime) : '-' }}</span>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -78,11 +128,13 @@ import {reactive, ref, onMounted} from "vue";
 import {Icon} from "@iconify/vue";
 import {ElMessage} from "element-plus";
 import dayjs from "dayjs";
-import {getUserList} from "@/request/user.js";
+import {getUserList, updateUserStatus} from "@/request/user.js";
 
 const users = ref([]);
 const total = ref(0);
 const tableLoading = ref(false);
+const showDetail = ref(false);
+const currentUser = ref(null);
 const params = reactive({
   pageNum: 1,
   pageSize: 10,
@@ -108,7 +160,6 @@ async function loadUserList() {
     total.value = data.total || 0;
   } catch (error) {
     console.error('加载用户列表失败:', error);
-    // 错误消息已在 axios 拦截器中处理
   } finally {
     tableLoading.value = false;
   }
@@ -137,6 +188,24 @@ function pageNumChange(page) {
 function formatTime(time) {
   if (!time) return '-';
   return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
+}
+
+function viewUser(row) {
+  currentUser.value = row;
+  showDetail.value = true;
+}
+
+async function toggleStatus(row) {
+  const newStatus = row.status === 0 ? 1 : 0;
+  const actionText = newStatus === 0 ? '启用' : '禁用';
+  
+  try {
+    await updateUserStatus(row.userid, newStatus);
+    row.status = newStatus;
+    ElMessage.success(`${actionText}成功`);
+  } catch (error) {
+    ElMessage.error(`${actionText}失败`);
+  }
 }
 </script>
 
@@ -196,5 +265,31 @@ function formatTime(time) {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.action-group {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.detail-form {
+  padding: 10px 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--el-border-color-light);
+  
+  .label {
+    color: var(--el-text-color-secondary);
+    font-weight: 500;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
 }
 </style>

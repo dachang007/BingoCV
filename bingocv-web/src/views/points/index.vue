@@ -5,7 +5,9 @@
         <p class="eyebrow">Points Center</p>
         <h2>积分中心</h2>
       </div>
-      <el-button type="primary" :disabled="todaySigned" @click="checkIn">{{ todaySigned ? '今日已签到' : '每日签到' }}</el-button>
+      <el-button type="primary" :disabled="todaySigned" @click="checkIn">
+        {{ todaySigned ? '今日已签到' : '每日签到' }}
+      </el-button>
     </div>
 
     <div class="summary-grid">
@@ -26,17 +28,32 @@
     <section class="panel">
       <div class="section-header">
         <h3>任务奖励</h3>
-        <el-tag effect="plain">MVP 规则</el-tag>
       </div>
-      <el-table :data="tasks" empty-text="暂无任务">
-        <el-table-column label="任务" prop="name" min-width="180" />
-        <el-table-column label="说明" prop="description" min-width="260" />
-        <el-table-column label="奖励" width="120">
-          <template #default="{ row }">+{{ row.rewardPoints }} 积分</template>
-        </el-table-column>
-        <el-table-column label="状态" width="120">
+      <el-table :data="tasks" empty-text="暂无任务" class="task-table">
+        <el-table-column label="任务" prop="name" min-width="150" />
+        <el-table-column label="说明" prop="description" min-width="220" />
+        <el-table-column label="完成度" min-width="160">
           <template #default="{ row }">
-            <el-tag :type="row.completed ? 'success' : 'info'" effect="plain">{{ row.completed ? '已完成' : '待完成' }}</el-tag>
+            <el-progress :percentage="row.progress || 0" :stroke-width="8" />
+          </template>
+        </el-table-column>
+        <el-table-column label="奖励" width="90" align="center">
+          <template #default="{ row }">+{{ row.rewardPoints }}</template>
+        </el-table-column>
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag v-if="row.rewarded" type="success" effect="plain">已领取</el-tag>
+            <el-tag v-else-if="row.completed" type="warning" effect="plain">待领取</el-tag>
+            <el-tag v-else type="info" effect="plain">待完成</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120" align="center">
+          <template #default="{ row }">
+            <el-button v-if="row.rewarded" size="small" disabled>已领取</el-button>
+            <el-button v-else-if="row.completed" size="small" type="primary" :loading="claimingId === row.id" @click="claim(row)">
+              领取
+            </el-button>
+            <el-button v-else size="small" type="primary" plain @click="goTask(row)">去完成</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -56,34 +73,71 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { getPointsDashboard, signIn } from '@/request/points.js';
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { claimReward, getPointsDashboard, signIn } from '@/request/points.js'
 
-const points = ref({});
-const tasks = ref([]);
-const logs = ref([]);
-const todaySigned = ref(false);
+const router = useRouter()
+const points = ref({})
+const tasks = ref([])
+const logs = ref([])
+const todaySigned = ref(false)
+const claimingId = ref(null)
 
 const loadDashboard = async () => {
-  const data = await getPointsDashboard();
-  points.value = data.account || {};
-  tasks.value = data.tasks || [];
-  logs.value = data.logs || [];
-  todaySigned.value = !!data.todaySigned;
-};
+  const data = await getPointsDashboard()
+  points.value = data.account || {}
+  tasks.value = data.tasks || []
+  logs.value = data.logs || []
+  todaySigned.value = !!data.todaySigned
+}
 
 const checkIn = async () => {
-  const data = await signIn();
-  ElMessage.success(`签到成功，获得 ${data.rewardPoints} 积分`);
-  await loadDashboard();
-};
+  const data = await signIn()
+  ElMessage.success(`签到成功，获得 ${data.rewardPoints} 积分`)
+  await loadDashboard()
+}
 
-onMounted(loadDashboard);
+const claim = async (row) => {
+  claimingId.value = row.id
+  try {
+    const earned = await claimReward(row.id)
+    ElMessage.success(`领取成功，获得 ${earned} 积分`)
+    await loadDashboard()
+  } finally {
+    claimingId.value = null
+  }
+}
+
+const taskRouteMap = {
+  daily_login: '/admin/points',
+  complete_profile: '/admin/profiles',
+  add_first_edu: '/admin/education',
+  add_first_work: '/admin/work',
+  select_template: '/admin/templates',
+  resume_full_score: '/admin/profiles',
+  share_resume: '/admin/share'
+}
+
+const goTask = (row) => {
+  const path = taskRouteMap[row.taskKey]
+  if (path) {
+    router.push(path)
+  } else {
+    ElMessage.info('该任务暂未配置跳转页面')
+  }
+}
+
+onMounted(loadDashboard)
 </script>
 
 <style scoped>
 .page {
+  min-height: 100%;
   padding: 24px;
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
 }
 
 .page-header,
@@ -100,14 +154,14 @@ onMounted(loadDashboard);
 
 .eyebrow {
   margin: 0 0 4px;
-  color: #667085;
+  color: var(--secondary-text-color);
   font-size: 13px;
 }
 
 h2,
 h3 {
   margin: 0;
-  color: #1f2937;
+  color: var(--el-text-color-primary);
 }
 
 h2 {
@@ -134,18 +188,22 @@ h2 {
 
 .summary-card span {
   display: block;
-  color: #667085;
   margin-bottom: 10px;
+  color: var(--secondary-text-color);
 }
 
 .summary-card strong {
-  color: #1f2937;
+  color: var(--el-text-color-primary);
   font-size: 30px;
 }
 
 .panel {
   padding: 20px;
   margin-bottom: 18px;
+}
+
+.task-table {
+  margin-top: 14px;
 }
 
 @media (max-width: 780px) {

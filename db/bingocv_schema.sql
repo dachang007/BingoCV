@@ -279,6 +279,26 @@ CREATE TABLE IF NOT EXISTS `bingo_system_config` (
   UNIQUE KEY `uk_bingo_system_config_key` (`config_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
+CREATE TABLE IF NOT EXISTS `bingo_operation_log` (
+  `id` BIGINT NOT NULL COMMENT '日志ID',
+  `userid` BIGINT DEFAULT NULL COMMENT '用户ID',
+  `username` VARCHAR(80) DEFAULT NULL COMMENT '用户名',
+  `module` VARCHAR(120) DEFAULT NULL COMMENT '模块',
+  `action` VARCHAR(120) DEFAULT NULL COMMENT '动作',
+  `request_method` VARCHAR(20) DEFAULT NULL COMMENT '请求方法',
+  `request_uri` VARCHAR(255) DEFAULT NULL COMMENT '请求路径',
+  `ip` VARCHAR(64) DEFAULT NULL COMMENT 'IP地址',
+  `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1成功，0失败',
+  `error_msg` VARCHAR(500) DEFAULT NULL COMMENT '错误信息',
+  `cost_ms` BIGINT DEFAULT NULL COMMENT '耗时毫秒',
+  `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除',
+  PRIMARY KEY (`id`),
+  KEY `idx_bingo_operation_user_time` (`userid`, `create_time`),
+  KEY `idx_bingo_operation_uri_time` (`request_uri`, `create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
+
 CREATE TABLE IF NOT EXISTS `bingo_pay_order` (
   `id` BIGINT NOT NULL COMMENT '订单ID',
   `order_no` VARCHAR(64) NOT NULL COMMENT '订单号',
@@ -328,7 +348,8 @@ VALUES
   (910003, 'add_first_work', '添加工作经历', 'NEWBIE', 15, '至少添加一条工作或项目经历', 1),
   (910004, 'select_template', '选择简历模板', 'NEWBIE', 10, '从模板市场启用一套模板', 1),
   (910005, 'daily_login', '每日登录', 'DAILY', 5, '每日登录奖励', 1),
-  (910006, 'resume_full_score', '简历完整度100%', 'ACHIEVEMENT', 50, '简历资料完整度达到100%', 1)
+  (910006, 'resume_full_score', '简历完整度100%', 'ACHIEVEMENT', 50, '简历资料完整度达到100%', 1),
+  (910007, 'share_resume', '创建简历分享', 'NEWBIE', 10, '创建一个公开或私密简历分享链接', 1)
 ON DUPLICATE KEY UPDATE
   `name` = VALUES(`name`),
   `task_type` = VALUES(`task_type`),
@@ -342,7 +363,10 @@ VALUES
   (920001, 'share.access.limit.options', '3,5,8', '分享访问人数可选档位', 1),
   (920002, 'share.verify.code.length', '4', '私密分享验证码长度', 1),
   (920003, 'points.sign.rewards', '5,8,12,16,20,25,30', '连续签到7天奖励配置', 1),
-  (920004, 'points.template.free.first', 'true', '新用户默认拥有免费模板', 1)
+  (920004, 'points.template.free.first', 'true', '新用户默认拥有免费模板', 1),
+  (920005, 'rate.limit.enabled', 'true', '是否启用接口限流', 1),
+  (920006, 'rate.limit.max.requests', '120', '单个IP在窗口期内允许的最大请求数', 1),
+  (920007, 'rate.limit.window.seconds', '60', '接口限流窗口期秒数', 1)
 ON DUPLICATE KEY UPDATE
   `config_value` = VALUES(`config_value`),
   `description` = VALUES(`description`),

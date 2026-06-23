@@ -17,6 +17,19 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 工作经历控制器
+ * 
+ * 功能说明：
+ * - 提供用户工作经历的CRUD操作
+ * - 支持单条记录的增删改查
+ * - 支持批量保存（先删除旧数据再批量插入）
+ * - 所有接口均需要登录验证（除公开查询接口）
+ * 
+ * 数据权限：
+ * - 用户只能访问和操作自己的工作经历数据
+ * - 通过UserContext获取当前登录用户ID进行数据隔离
+ */
 @RestController
 @RequestMapping("/work")
 @Slf4j
@@ -25,6 +38,17 @@ public class WorkController {
     @Autowired
     private WorkService workService;
 
+    /**
+     * 获取当前用户的工作经历列表
+     * 
+     * 业务逻辑：
+     * 1. 获取当前登录用户ID
+     * 2. 查询该用户的所有工作经历记录
+     * 3. 按优先级降序排序（优先级高的排在前面）
+     * 4. 优先级相同时按更新时间降序排序
+     * 
+     * @return 工作经历列表（已排序）
+     */
     @GetMapping("/list")
     @CheckLogin
     @Operation(summary = "获取当前用户工作经历")

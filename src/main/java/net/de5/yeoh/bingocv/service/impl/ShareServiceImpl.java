@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -32,9 +33,8 @@ import java.util.stream.Collectors;
 @Service
 public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements ShareService {
 
-    // 分享类型常量
-    private static final String PUBLIC = "PUBLIC";   // 公开分享：无需密码即可访问
-    private static final String PRIVATE = "PRIVATE"; // 私密分享：需要密码才能访问
+    private static final String PUBLIC = "PUBLIC";
+    private static final String PRIVATE = "PRIVATE";
 
     @Autowired
     private ShareAccessService shareAccessService;
@@ -50,6 +50,8 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     private SkillService skillService;
     @Autowired
     private SpecialtyService specialtyService;
+    @Autowired
+    private TaskCompletionService taskCompletionService;
 
     @Override
     public List<ShareVO> myShares(Long userId) {
@@ -65,7 +67,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     @Transactional(rollbackFor = Exception.class)
     public ShareVO createShare(Long userId, ShareCreateRequest request) {
         if (request == null) {
-            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "Share config cannot be empty");
+            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "分享配置不能为空");
         }
         String type = normalizeType(request.getShareType());
         String shortCode = nextShortCode();
@@ -82,20 +84,35 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 .build();
         this.save(share);
         createShortUrl(share);
+        taskCompletionService.completeTask(userId, "share_resume");
         return ShareVO.from(share, publicBaseUrl());
     }
 
+    /**
+     * 更新分享配置
+     * @param userId 用户id
+     * @param id 简历分享id
+     * @param request 分享配置请求参数
+     * @return 分享配置详情VO
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ShareVO updateShare(Long userId, Long id, ShareUpdateRequest request) {
         Share share = getOwnedShare(userId, id);
         if (request == null) {
-            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "Share config cannot be empty");
+            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "分享配置不能为空");
         }
         String type = normalizeType(request.getShareType());
         share.setShareType(type);
         share.setTitle(defaultTitle(request.getTitle()));
-        share.setPassword(normalizePassword(type, request.getPassword()));
+
+        // 编辑私密分享时，密码留空表示继续使用旧密码。
+        if (PRIVATE.equals(type) && !StringUtils.hasText(request.getPassword()) && StringUtils.hasText(share.getPassword())) {
+            share.setPassword(share.getPassword());
+        } else {
+            share.setPassword(normalizePassword(type, request.getPassword()));
+        }
+
         share.setAccessLimit(normalizeAccessLimit(request.getAccessLimit()));
         share.setExpireTime(request.getExpireTime());
         if (request.getStatus() != null) {
@@ -106,6 +123,12 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         return ShareVO.from(this.getById(id), publicBaseUrl());
     }
 
+    /**
+     * 关闭简历分享链接
+     * @param userId 用户id
+     * @param id 简历分享id
+     * @return true if success
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean closeShare(Long userId, Long id) {
@@ -119,6 +142,12 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         return true;
     }
 
+    /**
+     * 获取简历分享访问统计信息
+     * @param userId 用户id
+     * @param id 简历分享id
+     * @return 简历分享访问统计信息VO
+     */
     @Override
     public ShareAccessStatsVO accessStats(Long userId, Long id) {
         Share share = getOwnedShare(userId, id);
@@ -126,9 +155,22 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 .eq(ShareAccess::getShareId, share.getId())
                 .orderByDesc(ShareAccess::getCreateTime)
                 .last("LIMIT 30"));
+        LocalDateTime todayStart = LocalDateTime.now().with(LocalTime.MIN);
+        Long todayCount = shareAccessService.count(new LambdaQueryWrapper<ShareAccess>()
+                .eq(ShareAccess::getShareId, share.getId())
+                .ge(ShareAccess::getCreateTime, todayStart));
+        Long uniqueVisitorCount = shareAccessService.list(new LambdaQueryWrapper<ShareAccess>()
+                        .select(ShareAccess::getVisitorKey)
+                        .eq(ShareAccess::getShareId, share.getId())
+                        .groupBy(ShareAccess::getVisitorKey))
+                .stream()
+                .filter(item -> StringUtils.hasText(item.getVisitorKey()))
+                .count();
         return ShareAccessStatsVO.builder()
                 .shareId(share.getId())
                 .accessCount(share.getAccessCount())
+                .todayCount(todayCount)
+                .uniqueVisitorCount(uniqueVisitorCount)
                 .recentRecords(records)
                 .build();
     }
@@ -140,7 +182,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         validateAvailable(share);
         validatePassword(share, request);
 
-        // Count every successful open; this powers visit limits and analytics.
+        // 只有成功打开简历后才计数，避免密码错误也消耗访问次数。
         recordAccess(share);
         this.update(new LambdaUpdateWrapper<Share>()
                 .eq(Share::getId, share.getId())
@@ -174,10 +216,10 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 .eq(ShortUrl::getShortCode, shortCode)
                 .last("LIMIT 1"));
         if (shortUrl == null || !Integer.valueOf(1).equals(shortUrl.getStatus())) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Short link is unavailable");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "短链接不可用");
         }
         if (shortUrl.getExpireTime() != null && shortUrl.getExpireTime().isBefore(LocalDateTime.now())) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Short link has expired");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "短链接已过期");
         }
         shortUrlService.update(new LambdaUpdateWrapper<ShortUrl>()
                 .eq(ShortUrl::getId, shortUrl.getId())
@@ -187,40 +229,40 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
 
     private Share getOwnedShare(Long userId, Long id) {
         if (id == null) {
-            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "Share id cannot be empty");
+            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "分享ID不能为空");
         }
         Share share = this.getOne(new LambdaQueryWrapper<Share>()
                 .eq(Share::getId, id)
                 .eq(Share::getUserId, userId)
                 .last("LIMIT 1"));
         if (share == null) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share does not exist");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享不存在或不属于当前用户");
         }
         return share;
     }
 
     private Share getShareByCode(String shortCode) {
         if (!StringUtils.hasText(shortCode)) {
-            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "Share code cannot be empty");
+            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "分享码不能为空");
         }
         Share share = this.getOne(new LambdaQueryWrapper<Share>()
                 .eq(Share::getShortCode, shortCode)
                 .last("LIMIT 1"));
         if (share == null) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share does not exist");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享不存在");
         }
         return share;
     }
 
     private void validateAvailable(Share share) {
         if (!Integer.valueOf(1).equals(share.getStatus())) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share is closed");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享已关闭");
         }
         if (share.getExpireTime() != null && share.getExpireTime().isBefore(LocalDateTime.now())) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share has expired");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享已过期");
         }
         if (share.getAccessLimit() != null && share.getAccessCount() >= share.getAccessLimit()) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share access limit reached");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享访问次数已达上限");
         }
     }
 
@@ -230,7 +272,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         }
         String password = request == null ? null : request.getPassword();
         if (!StringUtils.hasText(password) || !Objects.equals(share.getPassword(), password.trim())) {
-            throw new InfoException(InfoEnum.NO_AUTH_ERROR.getCode(), "Password is required or incorrect");
+            throw new InfoException(InfoEnum.NO_AUTH_ERROR.getCode(), "访问密码为空或不正确");
         }
     }
 
@@ -242,7 +284,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 .shareId(share.getId())
                 .visitorKey(SecureUtil.md5((ip == null ? "" : ip) + "|" + (userAgent == null ? "" : userAgent)))
                 .ip(ip)
-                .region("Unknown")
+                .region(resolveRegion(ip))
                 .userAgent(userAgent)
                 .build();
         shareAccessService.save(access);
@@ -251,7 +293,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     private void createShortUrl(Share share) {
         shortUrlService.save(ShortUrl.builder()
                 .shortCode(share.getShortCode())
-                .targetUrl("/s/" + share.getShortCode())
+                .targetUrl("/share/" + share.getShortCode())
                 .bizType("SHARE")
                 .bizId(share.getId())
                 .accessCount(0)
@@ -276,7 +318,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
                 return code;
             }
         }
-        throw new InfoException(InfoEnum.OPERATION_ERROR.getCode(), "Failed to generate share code");
+        throw new InfoException(InfoEnum.OPERATION_ERROR.getCode(), "生成分享码失败");
     }
 
     private String normalizeType(String shareType) {
@@ -285,7 +327,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         }
         String type = shareType.trim().toUpperCase(Locale.ROOT);
         if (!PUBLIC.equals(type) && !PRIVATE.equals(type)) {
-            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "Share type must be PUBLIC or PRIVATE");
+            throw new InfoException(InfoEnum.PARAMS_ERROR.getCode(), "分享类型只能是公开或私密");
         }
         return type;
     }
@@ -295,7 +337,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
             return null;
         }
         if (!StringUtils.hasText(password)) {
-            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "Private share password cannot be empty");
+            throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "私密分享密码不能为空");
         }
         return password.trim();
     }
@@ -308,7 +350,7 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
     }
 
     private String defaultTitle(String title) {
-        return StringUtils.hasText(title) ? title.trim() : "My BingoCV Resume";
+        return StringUtils.hasText(title) ? title.trim() : "我的 BingoCV 简历";
     }
 
     private String publicBaseUrl() {
@@ -330,5 +372,18 @@ public class ShareServiceImpl extends ServiceImpl<ShareMapper, Share> implements
         }
         String realIp = request.getHeader("X-Real-IP");
         return StringUtils.hasText(realIp) ? realIp : request.getRemoteAddr();
+    }
+
+    private String resolveRegion(String ip) {
+        if (!StringUtils.hasText(ip)) {
+            return "未知";
+        }
+        if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip) || "::1".equals(ip)) {
+            return "本机访问";
+        }
+        if (ip.startsWith("10.") || ip.startsWith("192.168.") || ip.matches("^172\\.(1[6-9]|2\\d|3[0-1])\\..*")) {
+            return "内网访问";
+        }
+        return "公网访问";
     }
 }

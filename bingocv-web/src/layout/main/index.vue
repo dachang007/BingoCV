@@ -1,7 +1,7 @@
 <template>
   <div class="main-box">
     <router-view class="main-view" v-slot="{ Component, route }">
-      <keep-alive :include="['profiles', 'education', 'work', 'skill', 'templates', 'points', 'user']">
+      <keep-alive :include="['dashboard', 'profiles', 'education', 'work', 'skill', 'templates', 'resume-preview', 'ai-assistant', 'points', 'coupons', 'orders', 'share', 'user', 'coupon-admin', 'order-admin', 'refund-admin', 'settings', 'ai-usage-logs', 'operation-logs']">
         <component :is="Component" :key="route.name" />
       </keep-alive>
     </router-view>

@@ -11,5 +11,7 @@ import java.util.List;
 public class ShareAccessStatsVO {
     private Long shareId;
     private Integer accessCount;
+    private Long todayCount;
+    private Long uniqueVisitorCount;
     private List<ShareAccess> recentRecords;
 }

@@ -8,8 +8,9 @@ import net.de5.yeoh.bingocv.common.api.Result;
 import net.de5.yeoh.bingocv.common.enums.InfoEnum;
 import net.de5.yeoh.bingocv.common.exception.InfoException;
 import net.de5.yeoh.bingocv.common.utils.mvc.UserContext;
+import net.de5.yeoh.bingocv.dto.ResumeData;
 import net.de5.yeoh.bingocv.model.domain.Profiles;
-import net.de5.yeoh.bingocv.service.ProfilesService;
+import net.de5.yeoh.bingocv.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,16 +22,20 @@ public class ProfileController {
 
     @Autowired
     private ProfilesService profilesService;
+    @Autowired
+    private EduService eduService;
+    @Autowired
+    private WorkService workService;
+    @Autowired
+    private SkillService skillService;
+    @Autowired
+    private SpecialtyService specialtyService;
 
     @GetMapping("/me")
     @CheckLogin
     @Operation(summary = "获取当前用户个人信息")
     public Result<Profiles> getMyProfile() {
-        Long userId = UserContext.currentUserId();
-        if (userId == null) {
-            throw new InfoException(InfoEnum.NOT_LOGIN);
-        }
-
+        Long userId = requireUserId();
         Profiles profile = profilesService.getByUserId(userId);
         if (profile == null) {
             profile = profilesService.create(Profiles.builder().userId(userId).build());
@@ -42,10 +47,7 @@ public class ProfileController {
     @CheckLogin
     @Operation(summary = "更新当前用户个人信息")
     public Result<Profiles> updateMyProfile(@RequestBody Profiles profile) {
-        Long userId = UserContext.currentUserId();
-        if (userId == null) {
-            throw new InfoException(InfoEnum.NOT_LOGIN);
-        }
+        Long userId = requireUserId();
         if (profile == null) {
             throw new InfoException(InfoEnum.PARAM_IS_EMPTY, "个人信息不能为空");
         }
@@ -71,5 +73,27 @@ public class ProfileController {
             throw new InfoException(InfoEnum.PROFILE_NOT_EXISTS);
         }
         return Result.ok(profile);
+    }
+
+    @GetMapping("/me/full")
+    @CheckLogin
+    @Operation(summary = "获取当前用户完整简历数据")
+    public Result<ResumeData> getMyFullResume() {
+        Long userId = requireUserId();
+        ResumeData resumeData = new ResumeData();
+        resumeData.setProfile(profilesService.getByUserId(userId));
+        resumeData.setEdu(eduService.listByUserId(userId));
+        resumeData.setWork(workService.listByUserId(userId));
+        resumeData.setSkill(skillService.getByUserId(userId));
+        resumeData.setSpecialty(specialtyService.listByUserId(userId));
+        return Result.ok(resumeData);
+    }
+
+    private Long requireUserId() {
+        Long userId = UserContext.currentUserId();
+        if (userId == null) {
+            throw new InfoException(InfoEnum.NOT_LOGIN);
+        }
+        return userId;
     }
 }

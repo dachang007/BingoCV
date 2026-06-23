@@ -2,8 +2,16 @@
   <el-container class="layout">
     <el-aside
         class="aside"
+        :style="asideStyle"
         :class="uiStore.asideShow ? 'aside-show' : 'el-aside-hide'">
       <Aside />
+      <button
+          v-if="!isMobile"
+          class="aside-resizer"
+          type="button"
+          aria-label="拖拽调整侧边栏宽度"
+          @mousedown="startResize"
+      ></button>
     </el-aside>
     <div
         :class="(uiStore.asideShow && isMobile)? 'overlay-show':'overlay-hide'"
@@ -24,14 +32,42 @@
 import Aside from '@/layout/aside/index.vue'
 import Header from '@/layout/header/index.vue'
 import Main from '@/layout/main/index.vue'
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import {useUiStore} from "@/store/ui.js";
 
 const uiStore = useUiStore();
 const isMobile = ref(window.innerWidth < 1025)
+const MIN_ASIDE_WIDTH = 240
+const MAX_ASIDE_WIDTH = 340
+
+const asideStyle = computed(() => ({
+  width: isMobile.value ? '260px' : `${uiStore.asideWidth}px`
+}))
+
 const handleResize = () => {
   isMobile.value = window.innerWidth < 1025
   uiStore.asideShow = window.innerWidth > 1024;
+}
+
+function startResize(event) {
+  event.preventDefault()
+  const startX = event.clientX
+  const startWidth = uiStore.asideWidth
+  document.body.classList.add('aside-resizing')
+
+  const handleMouseMove = (moveEvent) => {
+    const nextWidth = startWidth + moveEvent.clientX - startX
+    uiStore.asideWidth = Math.min(MAX_ASIDE_WIDTH, Math.max(MIN_ASIDE_WIDTH, nextWidth))
+  }
+
+  const stopResize = () => {
+    document.body.classList.remove('aside-resizing')
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', stopResize)
+  }
+
+  window.addEventListener('mousemove', handleMouseMove)
+  window.addEventListener('mouseup', stopResize)
 }
 
 onMounted(() => {
@@ -55,6 +91,7 @@ onBeforeUnmount(() => {
 }
 
 .aside-show {
+  position: relative;
   -webkit-box-shadow: var(--aside-right-border);
   box-shadow: var(--aside-right-border);
   transform: translateX(0);
@@ -71,8 +108,36 @@ onBeforeUnmount(() => {
 }
 
 .el-aside {
-  width: auto;
   transition: all 100ms ease;
+  flex-shrink: 0;
+  background: var(--aside-backgound);
+}
+
+.aside-resizer {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+}
+
+.aside-resizer::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 3px;
+  width: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.aside-resizer:hover::after,
+:global(body.aside-resizing) .aside-resizer::after {
+  background: var(--el-color-primary);
 }
 
 .layout {
