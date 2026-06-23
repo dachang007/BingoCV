@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${resume.profile?.name ?: '简历'}">简历</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "SimSun", "Microsoft YaHei", "DejaVu Sans", sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #333;
+            padding: 20mm 15mm;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        .header h1 {
+            font-size: 24pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .contact {
+            font-size: 10pt;
+            color: #666;
+        }
+        .contact span {
+            margin: 0 8px;
+        }
+        .section {
+            margin-bottom: 18px;
+        }
+        .section-title {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #ccc;
+        }
+        .item {
+            margin-bottom: 12px;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        .item-title {
+            font-weight: bold;
+        }
+        .item-date {
+            color: #666;
+            font-size: 10pt;
+        }
+        .item-subtitle {
+            color: #555;
+            margin-bottom: 4px;
+        }
+        p {
+            text-align: justify;
+            text-indent: 2em;
+        }
+        ul {
+            list-style: none;
+            padding-left: 1em;
+        }
+        ul li {
+            position: relative;
+            padding-left: 1em;
+        }
+        ul li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header" th:if="${resume.profile}">
+        <h1 th:text="${resume.profile.name ?: '未命名'}">姓名</h1>
+        <div class="contact">
+            <span th:if="${resume.profile.phone}" th:text="${resume.profile.phone}">手机</span>
+            <span th:if="${resume.profile.email}">|</span>
+            <span th:if="${resume.profile.email}" th:text="${resume.profile.email}">邮箱</span>
+            <span th:if="${resume.profile.city}">|</span>
+            <span th:if="${resume.profile.city}" th:text="${resume.profile.city}">城市</span>
+        </div>
+    </div>
+
+    <div class="section" th:if="${resume.profile?.description}">
+        <div class="section-title">个人简介</div>
+        <p th:text="${resume.profile.description}">个人简介内容</p>
+    </div>
+
+    <div class="section" th:if="${resume.work and #lists.size(resume.work) > 0}">
+        <div class="section-title">工作经历</div>
+        <div class="item" th:each="work : ${resume.work}">
+            <div class="item-header">
+                <span class="item-title" th:text="${work.company}">公司名称</span>
+                <span class="item-date" th:text="${work.start + ' - ' + (work.end ?: '至今')}">时间</span>
+            </div>
+            <div class="item-subtitle" th:text="${work.job}">职位</div>
+            <p th:if="${work.description}" th:text="${work.description}">工作描述</p>
+        </div>
+    </div>
+
+    <div class="section" th:if="${resume.edu and #lists.size(resume.edu) > 0}">
+        <div class="section-title">教育经历</div>
+        <div class="item" th:each="edu : ${resume.edu}">
+            <div class="item-header">
+                <span class="item-title" th:text="${edu.school}">学校名称</span>
+                <span class="item-date" th:text="${edu.start + ' - ' + edu.end}">时间</span>
+            </div>
+            <div class="item-subtitle" th:text="${edu.study}">专业</div>
+        </div>
+    </div>
+
+    <div class="section" th:if="${resume.skill?.keywords}">
+        <div class="section-title">专业技能</div>
+        <p th:text="${resume.skill.keywords}">技能描述</p>
+    </div>
+
+    <div class="section" th:if="${resume.specialty and #lists.size(resume.specialty) > 0}">
+        <div class="section-title">个人特长</div>
+        <ul>
+            <li th:each="s : ${resume.specialty}" th:text="${s.name + (s.description ? '：' + s.description : '')}">特长</li>
+        </ul>
+    </div>
+</body>
+</html>
