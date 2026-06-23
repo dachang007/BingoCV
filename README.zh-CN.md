@@ -263,6 +263,35 @@ db/bingocv_schema.sql
 - Phase 5：AI 简历润色、简历评分、面试题生成
 - Phase 6：RBAC、后台配置、操作日志、接口限流、数据看板
 
+## 演示系统
+
+### 1. 测试账号
+**管理员：**
+- username:admin
+- password:123456
+- 
+**普通用户:**
+- username:zhangsan
+- password:123456
+
+### 2. 系统展示
+
+- **数据看板**
+
+![主页](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBR2o56htBMxhLdNgYDTiYI_WmJnmgAAIXEGsbfU3QVW9EUFkVK61yAQADAgADdwADPAQ.png)
+
+- **简历模板**
+
+![简历模板](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRmo56eFBHTa7RgesHn-AHIPL4MJ2AAIWEGsbfU3QVadhfbSioOzEAQADAgADdwADPAQ.png)
+
+- **AI助理**
+
+![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQmo42og3gATDIaWnyDpZyLKmQSSJAAKFE2sb__7JVUeGwhuqUk-bAQADAgADdwADPAQ.png)
+
+![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQ2o426oma1bP7pD_a3v3mRzQlLPNAAKTE2sb__7JVboKhUkLGSL2AQADAgADdwADPAQ.png)
+
+- **简历导出**
+![简历导出](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRWo56Y9xWbLfwPHBNOEITdk_T1rGAAIVEGsbfU3QVQ8W21wWS8snAQADAgADdwADPAQ.png)
 ## License
 
 本项目使用 MIT License 开源。

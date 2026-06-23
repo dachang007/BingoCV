@@ -263,6 +263,36 @@ Included tables:
 - Phase 5: AI resume polishing, resume scoring, and interview question generation
 - Phase 6: RBAC, admin configuration, operation logs, API rate limiting, and dashboards
 
+## Demo
+
+### 1. Accounts
+admin：
+- username:admin
+- password:123456
+user:
+- username:zhangsan
+- password:123456
+
+### 2. Pictures
+
+- **Dashboard**
+
+![主页](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBR2o56htBMxhLdNgYDTiYI_WmJnmgAAIXEGsbfU3QVW9EUFkVK61yAQADAgADdwADPAQ.png)
+
+- **CV-Models**
+
+![简历模板](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRmo56eFBHTa7RgesHn-AHIPL4MJ2AAIWEGsbfU3QVadhfbSioOzEAQADAgADdwADPAQ.png)
+
+- **Ai-Assistant**
+
+![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQmo42og3gATDIaWnyDpZyLKmQSSJAAKFE2sb__7JVUeGwhuqUk-bAQADAgADdwADPAQ.png)
+
+![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQ2o426oma1bP7pD_a3v3mRzQlLPNAAKTE2sb__7JVboKhUkLGSL2AQADAgADdwADPAQ.png)
+
+- **Export**
+
+![Export](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRWo56Y9xWbLfwPHBNOEITdk_T1rGAAIVEGsbfU3QVQ8W21wWS8snAQADAgADdwADPAQ.png)
+
 ## License
 
 This project is released under the MIT License.

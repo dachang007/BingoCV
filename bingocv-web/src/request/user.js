@@ -11,3 +11,12 @@ import http from '@/axios/index.js';
 export function getUserList(params) {
     return http.get('/user/list', { params });
 }
+
+/**
+ * 更新用户状态
+ * @param {number} userId - 用户ID
+ * @param {number} status - 状态（0-正常，1-禁用）
+ */
+export function updateUserStatus(userId, status) {
+    return http.put(`/user/${userId}/status`, null, { params: { status } });
+}

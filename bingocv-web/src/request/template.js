@@ -15,3 +15,7 @@ export function acquireTemplate(templateId) {
 export function activateTemplate(templateId) {
   return http.post(`/template/${templateId}/activate`);
 }
+
+export function listTemplates() {
+  return http.get('/template/market');
+}

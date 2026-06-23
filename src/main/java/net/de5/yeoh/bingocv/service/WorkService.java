@@ -18,4 +18,11 @@ public interface WorkService extends IService<Work> {
      * @return 保存后的列表
      */
     List<Work> add(List<Work> workList);
+
+    /**
+     * 根据用户ID查询工作经历列表
+     * @param userId 用户ID
+     * @return 工作经历列表
+     */
+    List<Work> listByUserId(Long userId);
 }

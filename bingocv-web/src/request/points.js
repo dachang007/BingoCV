@@ -7,3 +7,7 @@ export function getPointsDashboard() {
 export function signIn() {
   return http.post('/points/sign-in');
 }
+
+export function claimReward(taskId) {
+  return http.post(`/points/claim/${taskId}`);
+}

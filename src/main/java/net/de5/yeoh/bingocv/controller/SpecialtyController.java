@@ -17,6 +17,19 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 特长控制器
+ * 
+ * 功能说明：
+ * - 提供用户特长信息的CRUD操作
+ * - 支持单条记录的增删改查
+ * - 支持批量保存（先删除旧数据再批量插入）
+ * - 所有接口均需要登录验证
+ * 
+ * 数据权限：
+ * - 用户只能访问和操作自己的特长数据
+ * - 通过UserContext获取当前登录用户ID进行数据隔离
+ */
 @RestController
 @RequestMapping("/specialty")
 @Slf4j
@@ -25,6 +38,16 @@ public class SpecialtyController {
     @Autowired
     private SpecialtyService specialtyService;
 
+    /**
+     * 获取当前用户的特长列表
+     * 
+     * 业务逻辑：
+     * 1. 获取当前登录用户ID
+     * 2. 查询该用户的所有特长记录
+     * 3. 按更新时间降序排序
+     * 
+     * @return 特长列表（已排序）
+     */
     @GetMapping("/list")
     @CheckLogin
     @Operation(summary = "获取当前用户特长")

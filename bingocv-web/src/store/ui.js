@@ -11,6 +11,7 @@ export const useUiStore = defineStore('ui', {
         previewData: {},
         key: 0,
         dark: false,
+        asideWidth: 260,
         asideCount: {
             email: 0,
             send: 0,
@@ -27,6 +28,6 @@ export const useUiStore = defineStore('ui', {
         }
     },
     persist: {
-        pick: ['accountShow','dark'],
+        pick: ['accountShow','dark','asideWidth'],
     },
 })

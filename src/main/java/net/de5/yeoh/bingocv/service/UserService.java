@@ -44,4 +44,12 @@ public interface UserService extends IService<User> {
      * @return 用户列表和总数
      */
     Map<String, Object> getUserList(Integer pageNum, Integer pageSize, String username, Integer status);
+
+    /**
+     * 更新用户状态
+     * @param userId 用户ID
+     * @param status 状态（0-正常，1-禁用）
+     * @return 更新后的用户信息
+     */
+    User updateStatus(Long userId, Integer status);
 }

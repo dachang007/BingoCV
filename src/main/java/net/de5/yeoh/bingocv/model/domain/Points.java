@@ -18,11 +18,30 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Points extends BaseDO implements Serializable {
+    /**
+     * 用户ID
+     */
     @TableField("userid")
     private Long userId;
+
+    /**
+     * 积分余额
+     */
     private Integer balance;
+
+    /**
+     * 积分总和
+     */
     private Integer totalEarned;
+
+    /**
+     * 积分总支出
+     */
     private Integer totalSpent;
+
+    /**
+     * 过期时间
+     */
     private LocalDateTime expireTime;
 
     @TableField(exist = false)

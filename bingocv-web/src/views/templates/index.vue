@@ -2,14 +2,14 @@
   <div class="page">
     <div class="page-header">
       <div>
-        <p class="eyebrow">Template Market</p>
+        <p class="eyebrow">模板市场</p>
         <h2>简历模板</h2>
       </div>
       <el-segmented v-model="activeCategory" :options="categories" />
     </div>
 
     <div class="template-grid">
-      <article v-for="item in filteredTemplates" :key="item.name" class="template-card">
+      <article v-for="item in filteredTemplates" :key="item.id" class="template-card">
         <div class="cover" :class="coverClass(item)">
           <div class="cover-line wide"></div>
           <div class="cover-line"></div>
@@ -26,7 +26,7 @@
           <div class="card-footer">
             <span>{{ costText(item) }}</span>
             <el-button type="primary" plain :loading="loadingId === item.id" @click="useTemplate(item)">
-              {{ item.active ? '使用中' : item.owned ? '启用模板' : item.templateType === 'POINTS' ? '积分兑换' : item.templateType === 'PAID' ? '付费购买' : '免费领取' }}
+              {{ actionText(item) }}
             </el-button>
           </div>
         </div>
@@ -36,44 +36,60 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
-import { acquireTemplate, activateTemplate, getTemplateMarket } from '@/request/template.js';
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { acquireTemplate, activateTemplate, getTemplateMarket } from '@/request/template.js'
+import { createOrder } from '@/request/order.js'
 
-const categories = ['全部', 'IT互联网', '金融财会', '教育培训', '医疗健康', '设计创意', '通用简约'];
-const activeCategory = ref('全部');
-const templates = ref([]);
-const loadingId = ref(null);
+const router = useRouter()
+const categories = ['全部', 'IT互联网', '金融财会', '教育培训', '医疗健康', '设计创意', '通用简约']
+const activeCategory = ref('全部')
+const templates = ref([])
+const loadingId = ref(null)
 
-const filteredTemplates = computed(() => {
-  return templates.value;
-});
+const filteredTemplates = computed(() => templates.value)
 
-const loadTemplates = async () => {
-  templates.value = await getTemplateMarket({ industry: activeCategory.value });
-};
+async function loadTemplates() {
+  templates.value = await getTemplateMarket({ industry: activeCategory.value })
+}
 
-const useTemplate = async (item) => {
-  if (item.active) return;
-  loadingId.value = item.id;
+async function useTemplate(item) {
+  if (item.active) return
+  loadingId.value = item.id
   try {
-    if (!item.owned) {
-      await acquireTemplate(item.id);
+    if (!item.owned && item.templateType === 'PAID') {
+      await createOrder({ orderType: 'TEMPLATE', relatedId: item.id, payChannel: 'MOCK' })
+      ElMessage.success('模板购买订单已创建，请前往我的订单完成支付')
+      await router.push('/admin/orders')
+      return
     }
-    await activateTemplate(item.id);
-    ElMessage.success('模板已启用');
-    await loadTemplates();
+    if (!item.owned) {
+      await acquireTemplate(item.id)
+    }
+    await activateTemplate(item.id)
+    ElMessage.success('模板已启用')
+    await loadTemplates()
   } finally {
-    loadingId.value = null;
+    loadingId.value = null
   }
-};
+}
 
-const typeText = (type) => ({ FREE: '免费', POINTS: '积分', PAID: '付费' }[type] || type);
-const tagType = (type) => type === 'FREE' ? 'success' : type === 'POINTS' ? 'warning' : 'danger';
+function actionText(item) {
+  if (item.active) return '使用中'
+  if (item.owned) return '启用模板'
+  if (item.templateType === 'POINTS') return '积分兑换'
+  if (item.templateType === 'PAID') return '付费购买'
+  return '免费领取'
+}
+
+const typeText = (type) => ({ FREE: '免费', POINTS: '积分', PAID: '付费' })[type] || type
+const tagType = (type) => type === 'FREE' ? 'success' : type === 'POINTS' ? 'warning' : 'danger'
 const costText = (item) => {
-  if (item.templateType === 'FREE') return '0 积分';
-  if (item.templateType === 'POINTS') return `${item.pointsCost || 0} 积分`;
-  return `￥${item.price || 0}`;
-};
+  if (item.templateType === 'FREE') return '0 积分'
+  if (item.templateType === 'POINTS') return `${item.pointsCost || 0} 积分`
+  return `￥${item.price || 0}`
+}
 const coverClass = (item) => {
   const map = {
     'IT互联网': 'green',
@@ -82,17 +98,20 @@ const coverClass = (item) => {
     '医疗健康': 'teal',
     '设计创意': 'rose',
     '通用简约': 'gray'
-  };
-  return map[item.industry] || 'blue';
-};
+  }
+  return map[item.industry] || 'blue'
+}
 
-watch(activeCategory, loadTemplates);
-onMounted(loadTemplates);
+watch(activeCategory, loadTemplates)
+onMounted(loadTemplates)
 </script>
 
 <style scoped>
 .page {
+  min-height: 100%;
   padding: 24px;
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
 }
 
 .page-header {
@@ -105,14 +124,14 @@ onMounted(loadTemplates);
 
 .eyebrow {
   margin: 0 0 4px;
-  color: #667085;
+  color: var(--secondary-text-color);
   font-size: 13px;
 }
 
 h2,
 h3 {
   margin: 0;
-  color: #1f2937;
+  color: var(--el-text-color-primary);
 }
 
 h2 {
@@ -145,6 +164,14 @@ h2 {
 .cover.teal { background: #e6f7f7; }
 .cover.rose { background: #fff0f3; }
 .cover.gray { background: #f4f6f8; }
+
+:global(.dark) .cover.green { background: #173126; }
+:global(.dark) .cover.blue { background: #172842; }
+:global(.dark) .cover.gold { background: #382d16; }
+:global(.dark) .cover.purple { background: #251f3a; }
+:global(.dark) .cover.teal { background: #143334; }
+:global(.dark) .cover.rose { background: #3a1c25; }
+:global(.dark) .cover.gray { background: #25282c; }
 
 .cover-line,
 .cover-block {
@@ -184,13 +211,13 @@ h2 {
 
 .card-body p {
   min-height: 44px;
-  color: #667085;
+  color: var(--regular-text-color);
   line-height: 1.6;
 }
 
 .card-footer span {
   font-weight: 700;
-  color: #1f2937;
+  color: var(--el-text-color-primary);
 }
 
 @media (max-width: 720px) {

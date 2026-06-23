@@ -49,21 +49,6 @@ export function register(username, password, captcha, captchaId) {
  * 用户登出
  */
 export function logout() {
-    return http.post('/user/logout')
+    // 后端当前没有真正的会话退出接口，前端退出只需要清理本地登录态。
+    return Promise.resolve()
 }
-
-// ============ 保留原有代码（注释）===========
-/*
-// 原邮件系统登录接口
-export function login(email, password) {
-    return http.post('/login', {email: email, password: password})
-}
-
-export function logout() {
-    return http.delete('/logout')
-}
-
-export function register(form) {
-    return http.post('/register', form)
-}
-*/

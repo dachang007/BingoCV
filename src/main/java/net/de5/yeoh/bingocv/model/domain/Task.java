@@ -31,5 +31,8 @@ public class Task extends BaseDO implements Serializable {
     private Boolean rewarded;
 
     @TableField(exist = false)
+    private Integer progress;
+
+    @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

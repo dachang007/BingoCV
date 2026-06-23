@@ -63,3 +63,7 @@ export function updateSpecialty(id, data) {
 export function deleteSpecialty(id) {
   return http.delete(`/specialty/${id}`);
 }
+
+export function getMyResume() {
+  return http.get('/profile/me/full');
+}

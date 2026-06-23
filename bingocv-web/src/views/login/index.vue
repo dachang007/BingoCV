@@ -1,500 +1,280 @@
 <template>
-  <div id="login-box">
-    <div id="background-wrap">
-      <div class="x1 cloud"></div>
-      <div class="x2 cloud"></div>
-      <div class="x3 cloud"></div>
-      <div class="x4 cloud"></div>
-      <div class="x5 cloud"></div>
-    </div>
-    <div class="form-wrapper">
-      <div class="container">
-        <span class="form-title">BingoCV</span>
-        <span class="form-desc">欢迎登录-BingoCV</span>
-        <div>
-          <el-input v-model="form.username" type="text" :placeholder="$t('username')" autocomplete="off">
-          </el-input>
-          <el-input v-model="form.password" :placeholder="$t('password')" type="password" autocomplete="off" show-password>
-          </el-input>
-          <div class="captcha-row">
-            <el-input v-model="form.captcha" :placeholder="$t('captcha')" type="text" autocomplete="off" style="width: 60%">
-            </el-input>
-            <div class="captcha-wrapper" @click="refreshCaptcha">
-              <img v-if="captchaUrl" :src="captchaUrl" class="captcha-img" alt="验证码" />
-              <div v-else class="captcha-loading">
-                <svg class="loading-icon" viewBox="0 0 24 24" fill="none">
-                  <circle class="loading-ring" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 5" opacity="0.3"/>
-                  <circle class="loading-spinner" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 5">
-                    <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/>
-                  </circle>
-                </svg>
-              </div>
-            </div>
-          </div>
-          <div class="remember-row">
-            <el-checkbox v-model="form.rememberMe" label="记住我" />
-          </div>
-          <el-button class="btn" type="primary" @click="submit" :loading="loginLoading">
-            {{ $t('登录') }}
-          </el-button>
-          <div class="switch" @click="goToRegister">{{ $t('noAccount') }} <span>{{ $t('regSwitch') }}</span></div>
-        </div>
+  <div class="auth-page">
+    <section class="auth-card">
+      <div class="auth-header">
+        <span class="brand-mark">BingoCV</span>
+        <h1>后台登录</h1>
+        <p>登录后继续管理你的在线简历、模板和分享链接</p>
       </div>
-    </div>
+
+      <el-form :model="form" class="auth-form" @submit.prevent="submit" label-position="top">
+        <el-form-item label="用户名">
+          <el-input v-model.trim="form.username" placeholder="请输入用户名" autocomplete="username" />
+        </el-form-item>
+
+        <el-form-item label="密码">
+          <el-input
+            v-model="form.password"
+            placeholder="请输入密码"
+            type="password"
+            show-password
+            autocomplete="current-password"
+          />
+        </el-form-item>
+
+        <el-form-item label="验证码">
+          <div class="captcha-row">
+            <el-input v-model.trim="form.captcha" placeholder="请输入验证码" autocomplete="off" @keyup.enter="submit" />
+            <button class="captcha-box" type="button" @click="refreshCaptcha">
+              <img v-if="captchaUrl" :src="captchaUrl" alt="验证码" />
+              <span v-else>刷新</span>
+            </button>
+          </div>
+        </el-form-item>
+
+        <div class="form-extra">
+          <el-checkbox v-model="form.rememberMe">记住账号</el-checkbox>
+        </div>
+
+        <el-button class="submit-btn" type="primary" :loading="loginLoading" @click="submit">
+          登录
+        </el-button>
+      </el-form>
+
+      <button class="switch-btn" type="button" @click="goToRegister">
+        还没有账号？<span>去注册</span>
+      </button>
+    </section>
   </div>
 </template>
 
 <script setup>
-import router from "@/router";
-import {reactive, ref, onMounted} from "vue";
-import {login, getCaptcha} from "@/request/login.js";
-import {useUserStore} from "@/store/user.js";
-import {useI18n} from "vue-i18n";
-import {ElMessage} from "element-plus";
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { getCaptcha, login } from '@/request/login.js'
+import { useUserStore } from '@/store/user.js'
+import { buildPermKeysByRole, getHomePathByRole } from '@/perm/permissions.js'
+import { feedback, resolveErrorMessage } from '@/utils/feedback.js'
 
-const {t} = useI18n();
-const userStore = useUserStore();
+const router = useRouter()
+const userStore = useUserStore()
 const loginLoading = ref(false)
+const captchaUrl = ref('')
+const captchaId = ref('')
 
 const form = reactive({
   username: '',
   password: '',
   captcha: '',
   rememberMe: false
-});
+})
 
-const captchaUrl = ref('');
-const captchaLoading = ref(false);
-const captchaId = ref('');
+function releaseCaptchaUrl() {
+  if (captchaUrl.value) {
+    URL.revokeObjectURL(captchaUrl.value)
+    captchaUrl.value = ''
+  }
+}
 
-const refreshCaptcha = () => {
-  captchaLoading.value = true;
-  getCaptcha().then(data => {
-    const blob = new Blob([data.blob], { type: 'image/png' });
-    captchaUrl.value = URL.createObjectURL(blob);
-    captchaId.value = data.captchaId;
-  }).catch(e => {
-    console.error('获取验证码失败:', e);
-  }).finally(() => {
-    captchaLoading.value = false;
-  });
-};
+async function refreshCaptcha() {
+  try {
+    const data = await getCaptcha()
+    releaseCaptchaUrl()
+    captchaUrl.value = URL.createObjectURL(new Blob([data.blob], { type: 'image/png' }))
+    captchaId.value = data.captchaId
+  } catch (error) {
+    feedback.error('验证码加载失败')
+  }
+}
 
 onMounted(() => {
-  refreshCaptcha();
-  
-  const rememberMe = localStorage.getItem('rememberMe');
-  if (rememberMe === 'true') {
-    form.rememberMe = true;
-    form.username = localStorage.getItem('savedUsername') || '';
+  refreshCaptcha()
+  if (localStorage.getItem('rememberMe') === 'true') {
+    form.rememberMe = true
+    form.username = localStorage.getItem('savedUsername') || ''
   }
-});
+})
 
-const goToRegister = () => {
-  router.push('/register');
-};
+onBeforeUnmount(releaseCaptchaUrl)
 
-const submit = () => {
+function goToRegister() {
+  router.push('/register')
+}
+
+async function submit() {
   if (!form.username) {
-    ElMessage({
-      message: '请输入用户名',
-      type: 'error',
-      plain: true,
-    })
+    feedback.warning('请输入用户名')
     return
   }
-
   if (!form.password) {
-    ElMessage({
-      message: '请输入密码',
-      type: 'error',
-      plain: true,
-    })
+    feedback.warning('请输入密码')
     return
   }
-
   if (!form.captcha) {
-    ElMessage({
-      message: '请输入验证码',
-      type: 'error',
-      plain: true,
-    })
+    feedback.warning('请输入验证码')
     return
   }
 
-    loginLoading.value = true
-  login(form.username, form.password, form.captcha, captchaId.value).then(async data => {
-    const user = data.user || data;
-    const profile = data.profile || {};
+  loginLoading.value = true
+  try {
+    const data = await login(form.username, form.password, form.captcha, captchaId.value)
+    const user = data.user || data
+    const profile = data.profile || {}
+    const role = user.role || 'USER'
     const userData = {
       id: user.userid || user.id,
       username: user.username,
-      email: user.username,
-      name: profile.name || user.username,
+      email: profile.email || user.username,
+      name: profile.name || user.nickname || user.username,
       avatar: user.avatar || '',
-      role: {
-        name: user.role || 'user',
-        accountCount: 1,
-        sendType: 'ban',
-        sendCount: 0
-      },
-      sendCount: 0,
-      permKeys: ['*']
-    };
-    const userInfo = btoa(unescape(encodeURIComponent(JSON.stringify(userData))));
-    localStorage.setItem('userInfo', userInfo);
-    
-    userStore.user = userData;
-    
+      role: { name: role },
+      permKeys: buildPermKeysByRole(role)
+    }
+
+    const userInfo = btoa(unescape(encodeURIComponent(JSON.stringify(userData))))
+    localStorage.setItem('userInfo', userInfo)
+    userStore.user = userData
+
     if (form.rememberMe) {
-      localStorage.setItem('rememberMe', 'true');
-      localStorage.setItem('savedUsername', form.username);
+      localStorage.setItem('rememberMe', 'true')
+      localStorage.setItem('savedUsername', form.username)
     } else {
-      localStorage.removeItem('rememberMe');
-      localStorage.removeItem('savedUsername');
+      localStorage.removeItem('rememberMe')
+      localStorage.removeItem('savedUsername')
     }
-    
-    ElMessage({
-      message: '登录成功',
-      type: 'success',
-      plain: true,
-    })
-    
-    try {
-      await router.replace('/profiles')
-    } catch (err) {
-      console.error('跳转失败:', err)
-      window.location.href = '/profiles'
-    }
-  }).catch(e => {
-    refreshCaptcha();
-    // 提取错误信息，优先使用后端返回的msg，其次是message
-    const errorMsg = e.msg || e.message || '登录失败';
-    ElMessage({
-      message: errorMsg,
-      type: 'error',
-      plain: true,
-    })
-  }).finally(() => {
+
+    await router.replace(getHomePathByRole(role))
+    // 路由跳转结束后再弹提示，避免登录组件卸载时消息被样式或时机影响。
+    requestAnimationFrame(() => feedback.success('登录成功'))
+  } catch (error) {
+    await refreshCaptcha()
+    feedback.error(resolveErrorMessage(error, '登录失败，请检查账号、密码或验证码'))
+  } finally {
     loginLoading.value = false
-  })
+  }
 }
-
-
-
 </script>
 
-
-<style lang="scss" scoped>
-
-.form-wrapper {
-  position: fixed;
-  right: 0;
-  height: 100%;
-  z-index: 10;
+<style scoped>
+.auth-page {
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  @media (max-width: 767px) {
-    width: 100%;
-  }
+  padding: 32px 16px;
+  background:
+    radial-gradient(circle at top left, var(--el-color-primary-light-9), transparent 34%),
+    var(--el-bg-color-page);
 }
 
-.container {
-  background: var(--el-bg-color);
-  padding-left: 40px;
-  padding-right: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 450px;
-  height: 100%;
-  border-left: 1px solid var(--light-border);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  @media (max-width: 1024px) {
-    padding: 20px 18px;
-    width: 384px;
-    margin-left: 18px;
-  }
-  @media (max-width: 767px) {
-    border: 1px solid var(--light-border);
-    padding: 20px 18px;
-    border-radius: 6px;
-    height: fit-content;
-    width: 100%;
-    margin-right: 18px;
-    margin-left: 18px;
-  }
-
-  .btn {
-    height: 36px;
-    width: 100%;
-    border-radius: 6px;
-  }
-
-  .form-desc {
-    margin-top: 5px;
-    margin-bottom: 18px;
-    color: var(--form-desc-color);
-  }
-
-  .form-title {
-    font-weight: bold;
-    font-size: 22px !important;
-  }
-
-  .switch {
-    margin-top: 20px;
-    text-align: center;
-
-    span {
-      color: var(--login-switch-color);
-      cursor: pointer;
-    }
-  }
-
-  :deep(.el-input__wrapper) {
-    border-radius: 6px;
-    background: var(--el-bg-color);
-    --el-input-text-color: var(--el-text-color-primary);
-  }
-
-  .email-input :deep(.el-input__wrapper) {
-    border-radius: 6px 0 0 6px;
-    background: var(--el-bg-color);
-    --el-input-text-color: var(--el-text-color-primary);
-  }
-
-  .el-input {
-    height: 38px;
-    width: 100%;
-    margin-bottom: 18px;
-
-    :deep(.el-input__inner) {
-      height: 36px;
-      color: var(--el-text-color-primary);
-    }
-  }
-}
-
-:deep(.el-select-dropdown__item) {
-  padding: 0 10px;
-}
-
-:deep(.bind-dialog) {
-  width: 400px !important;
-  @media (max-width: 440px) {
-    width: calc(100% - 40px) !important;
-    margin-right: 20px !important;
-    margin-left: 20px !important;
-  }
-}
-
-.bind-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 15px;
-}
-
-.setting-icon {
-  position: relative;
-  top: 6px;
-}
-
-.github {
-  position: fixed;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  background: var(--el-bg-color);
-  bottom: 10px;
-  right: 10px;
-  z-index: 1000;
+.auth-card {
+  width: min(100%, 420px);
+  padding: 34px;
   border: 1px solid var(--el-border-color-light);
-  box-shadow: var(--el-box-shadow-light);
-  cursor: pointer;
-}
-
-:deep(.el-input-group__append) {
-  padding: 0 !important;
-  padding-left: 8px !important;
-  padding-right: 4px !important;
+  border-radius: 8px;
   background: var(--el-bg-color);
-  border-radius: 0 8px 8px 0;
+  box-shadow: var(--el-box-shadow-light);
 }
 
-:deep(.el-button+.el-button) {
+.auth-header {
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.brand-mark {
+  display: inline-flex;
+  margin-bottom: 12px;
+  color: var(--el-color-primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.auth-header h1 {
+  margin: 0 0 8px;
+  color: var(--el-text-color-primary);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.auth-header p {
   margin: 0;
+  color: var(--el-text-color-secondary);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-.register-turnstile {
-  margin-bottom: 18px;
+.auth-form {
+  width: 100%;
+}
+
+:deep(.el-form-item__label) {
+  color: var(--el-text-color-primary);
+  font-weight: 500;
+}
+
+:deep(.el-input__wrapper) {
+  min-height: 42px;
 }
 
 .captcha-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
-    
-  .captcha-wrapper {
-    width: 120px;
-    height: 36px;
-    border-radius: 6px;
-    cursor: pointer;
-    background: var(--extra-light-fill);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .captcha-img {
-    width: 100%;
-    height: 100%;
-    border-radius: 6px;
-    object-fit: contain;
-  }
-  
-  .captcha-loading {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-  }
-  
-  .loading-icon {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .loading-spinner {
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-}
-
-.remember-row {
-  margin-bottom: 18px;
-  text-align: left;
-  
-  :deep(.el-checkbox) {
-    --el-checkbox-label-color: var(--el-text-color-regular);
-  }
-}
-
-.select {
-  position: absolute;
-  right: 30px;
-  width: 100px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.custom-style {
-  margin-bottom: 10px;
-}
-
-.custom-style .el-segmented {
-  --el-border-radius-base: 6px;
-  width: 180px;
-}
-
-
-#login-box {
-  background: linear-gradient(to bottom, #2980b9, #6dd5fa, #fff);
-  font: 100% Arial, sans-serif;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 12px;
+  width: 100%;
 }
 
+.captcha-box {
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--el-border-color);
+  border-radius: 6px;
+  background: var(--el-fill-color-light);
+  color: var(--el-text-color-secondary);
+  cursor: pointer;
+  overflow: hidden;
+}
 
-#background-wrap {
+.captcha-box img {
+  width: 100%;
   height: 100%;
-  z-index: 0;
+  object-fit: contain;
 }
 
-@keyframes animateCloud {
-  0% {
-    margin-left: -500px;
+.form-extra {
+  display: flex;
+  justify-content: flex-start;
+  margin: -2px 0 18px;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 42px;
+  font-size: 15px;
+}
+
+.switch-btn {
+  display: block;
+  width: 100%;
+  margin-top: 22px;
+  color: var(--el-text-color-secondary);
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.switch-btn span {
+  color: var(--el-color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .auth-card {
+    padding: 26px 18px;
   }
 
-  100% {
-    margin-left: 100%;
+  .captcha-row {
+    grid-template-columns: minmax(0, 1fr) 96px;
   }
 }
-
-.x1 {
-  animation: animateCloud 30s linear infinite;
-  transform: scale(0.65);
-}
-
-.x2 {
-  animation: animateCloud 15s linear infinite;
-  transform: scale(0.3);
-}
-
-.x3 {
-  animation: animateCloud 25s linear infinite;
-  transform: scale(0.5);
-}
-
-.x4 {
-  animation: animateCloud 13s linear infinite;
-  transform: scale(0.4);
-}
-
-.x5 {
-  animation: animateCloud 20s linear infinite;
-  transform: scale(0.55);
-}
-
-.cloud {
-  background: linear-gradient(to bottom, #fff 5%, #f1f1f1 100%);
-  border-radius: 100px;
-  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
-  height: 120px;
-  width: 350px;
-  position: relative;
-}
-
-.cloud:after,
-.cloud:before {
-  content: "";
-  position: absolute;
-  background: #fff;
-  z-index: -1;
-}
-
-.cloud:after {
-  border-radius: 100px;
-  height: 100px;
-  left: 50px;
-  top: -50px;
-  width: 100px;
-}
-
-.cloud:before {
-  border-radius: 200px;
-  height: 180px;
-  width: 180px;
-  right: 50px;
-  top: -90px;
-}
-
 </style>

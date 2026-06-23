@@ -14,6 +14,19 @@ import net.de5.yeoh.bingocv.service.SkillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 技能控制器
+ * 
+ * 功能说明：
+ * - 提供用户技能信息的管理接口
+ * - 每个用户只有一条技能记录
+ * - 技能关键词以逗号分隔存储
+ * - 所有接口均需要登录验证
+ * 
+ * 数据权限：
+ * - 用户只能访问和操作自己的技能数据
+ * - 通过UserContext获取当前登录用户ID进行数据隔离
+ */
 @RestController
 @RequestMapping("/skill")
 @Slf4j
@@ -22,6 +35,16 @@ public class SkillController {
     @Autowired
     private SkillService skillService;
 
+    /**
+     * 获取当前用户的技能信息
+     * 
+     * 业务逻辑：
+     * 1. 获取当前登录用户ID
+     * 2. 查询该用户的技能记录（每个用户最多一条）
+     * 3. 如果不存在，返回空技能对象（keywords为空字符串）
+     * 
+     * @return 技能信息对象
+     */
     @GetMapping("/me")
     @CheckLogin
     @Operation(summary = "获取当前用户技能")

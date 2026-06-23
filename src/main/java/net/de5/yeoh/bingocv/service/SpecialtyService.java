@@ -18,4 +18,11 @@ public interface SpecialtyService extends IService<Specialty> {
      * @return 保存后的列表
      */
     List<Specialty> add(List<Specialty> specialtyList);
+
+    /**
+     * 根据用户ID查询特长列表
+     * @param userId 用户ID
+     * @return 特长列表
+     */
+    List<Specialty> listByUserId(Long userId);
 }

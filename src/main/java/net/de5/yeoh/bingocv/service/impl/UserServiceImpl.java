@@ -167,4 +167,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         
         return result;
     }
+
+    /**
+     * 更新用户状态
+     * @param userId 用户ID
+     * @param status 状态（0-正常，1-禁用）
+     * @return 更新后的用户信息
+     */
+    @Override
+    public User updateStatus(Long userId, Integer status) {
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new InfoException(InfoEnum.USER_NOT_EXISTS);
+        }
+        
+        user.setStatus(status);
+        user.setUpdateTime(LocalDateTime.now());
+        this.updateById(user);
+        
+        user.setPassword(null);
+        return user;
+    }
 }

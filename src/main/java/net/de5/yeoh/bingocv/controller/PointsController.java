@@ -11,6 +11,7 @@ import net.de5.yeoh.bingocv.model.domain.PointsLog;
 import net.de5.yeoh.bingocv.model.domain.SignIn;
 import net.de5.yeoh.bingocv.model.domain.Task;
 import net.de5.yeoh.bingocv.service.PointsService;
+import net.de5.yeoh.bingocv.service.UserTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,9 @@ public class PointsController {
 
     @Autowired
     private PointsService pointsService;
+
+    @Autowired
+    private UserTaskService userTaskService;
 
     @GetMapping("/dashboard")
     @CheckLogin
@@ -51,6 +55,13 @@ public class PointsController {
     @Operation(summary = "每日签到")
     public Result<SignIn> signIn() {
         return Result.ok(pointsService.signIn(requireUserId()));
+    }
+
+    @PostMapping("/claim/{taskId}")
+    @CheckLogin
+    @Operation(summary = "领取任务奖励")
+    public Result<Integer> claimReward(@PathVariable Long taskId) {
+        return Result.ok(userTaskService.claimReward(requireUserId(), taskId));
     }
 
     private Long requireUserId() {

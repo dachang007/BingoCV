@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class ShareVO {
-    private Long id;
+    private String id;
     private String shareType;
     private String title;
     private Integer accessLimit;
@@ -26,7 +26,7 @@ public class ShareVO {
         String code = share.getShortCode();
         String base = publicBaseUrl == null ? "" : publicBaseUrl;
         return ShareVO.builder()
-                .id(share.getId())
+                .id(String.valueOf(share.getId()))
                 .shareType(share.getShareType())
                 .title(share.getTitle())
                 .accessLimit(share.getAccessLimit())
@@ -34,7 +34,7 @@ public class ShareVO {
                 .expireTime(share.getExpireTime())
                 .shortCode(code)
                 .status(share.getStatus())
-                .shareUrl(base + "/s/" + code)
+                .shareUrl(base + "/share/" + code)
                 .shortUrl(base + "/r/" + code)
                 .createTime(share.getCreateTime())
                 .updateTime(share.getUpdateTime())

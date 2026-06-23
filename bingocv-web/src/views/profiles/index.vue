@@ -14,15 +14,16 @@
           class="avatar-uploader"
           :auto-upload="false"
           :show-file-list="false"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
           :on-change="handlePhotoChange"
+          :before-upload="beforePhotoUpload"
         >
-          <el-avatar :size="116" :src="formData.photo">
+          <el-avatar :size="116" :src="avatarUrl">
             <Icon icon="solar:user-circle-linear" width="56" />
           </el-avatar>
-          <el-button plain>上传头像</el-button>
+          <el-button plain :loading="uploading">上传头像</el-button>
         </el-upload>
-        <p>建议使用清晰正面照。当前版本先保存为浏览器可预览的数据地址，后续可接入对象存储。</p>
+        <p>支持 JPG、PNG、GIF、WebP 格式，文件大小不超过 10MB。上传后记得点击保存。</p>
       </section>
 
       <section class="form-panel">
@@ -60,10 +61,10 @@
 
           <div class="form-row">
             <el-form-item label="微信">
-              <el-input v-model="formData.weixin" placeholder="可选" />
+              <el-input v-model="formData.weixin" placeholder="选填" />
             </el-form-item>
             <el-form-item label="QQ">
-              <el-input v-model="formData.qq" placeholder="可选" />
+              <el-input v-model="formData.qq" placeholder="选填" />
             </el-form-item>
           </div>
 
@@ -88,11 +89,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import { Icon } from '@iconify/vue';
-import { getProfiles, updateProfiles } from '@/request/resume.js';
+import { computed, onMounted, ref } from 'vue'
+import { Icon } from '@iconify/vue'
+import { ElMessage } from 'element-plus'
+import { getProfiles, updateProfiles } from '@/request/resume.js'
+import { uploadAvatar } from '@/request/upload.js'
 
-const saving = ref(false);
+const saving = ref(false)
+const uploading = ref(false)
 const formData = ref({
   id: null,
   name: '',
@@ -107,42 +111,68 @@ const formData = ref({
   qq: '',
   weibo: '',
   description: ''
-});
+})
+
+const avatarUrl = computed(() => formData.value.photo || '')
 
 const loadProfiles = async () => {
-  const data = await getProfiles();
+  const data = await getProfiles()
   if (data) {
-    formData.value = { ...formData.value, ...data };
+    formData.value = { ...formData.value, ...data }
   }
-};
+}
 
-const handlePhotoChange = (uploadFile) => {
-  const file = uploadFile.raw;
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    formData.value.photo = reader.result;
-  };
-  reader.readAsDataURL(file);
-};
+const beforePhotoUpload = (file) => {
+  const isImage = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
+  const isLt10M = file.size / 1024 / 1024 < 10
+
+  if (!isImage) {
+    ElMessage.error('只能上传 JPG/PNG/GIF/WebP 格式的图片')
+    return false
+  }
+  if (!isLt10M) {
+    ElMessage.error('图片大小不能超过 10MB')
+    return false
+  }
+  return true
+}
+
+const handlePhotoChange = async (uploadFile) => {
+  const file = uploadFile.raw
+  if (!file || !beforePhotoUpload(file)) return
+
+  uploading.value = true
+  try {
+    const result = await uploadAvatar(file)
+    formData.value.photo = result.url
+    ElMessage.success('头像上传成功')
+  } catch (error) {
+    ElMessage.error(error?.msg || error?.message || '头像上传失败')
+  } finally {
+    uploading.value = false
+  }
+}
 
 const saveProfiles = async () => {
-  saving.value = true;
+  saving.value = true
   try {
-    const data = await updateProfiles(formData.value);
-    formData.value = { ...formData.value, ...data };
-    ElMessage.success('个人简历已保存');
+    const data = await updateProfiles(formData.value)
+    formData.value = { ...formData.value, ...data }
+    ElMessage.success('个人简历已保存')
   } finally {
-    saving.value = false;
+    saving.value = false
   }
-};
+}
 
-onMounted(loadProfiles);
+onMounted(loadProfiles)
 </script>
 
 <style scoped>
 .page {
+  min-height: 100%;
   padding: 24px;
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
 }
 
 .page-header {
@@ -154,13 +184,13 @@ onMounted(loadProfiles);
 
 .eyebrow {
   margin: 0 0 4px;
-  color: #667085;
+  color: var(--secondary-text-color);
   font-size: 13px;
 }
 
 h2 {
   margin: 0;
-  color: #1f2937;
+  color: var(--el-text-color-primary);
   font-size: 24px;
 }
 
@@ -188,7 +218,7 @@ h2 {
 
 .photo-panel p {
   margin: 18px 0 0;
-  color: #667085;
+  color: var(--secondary-text-color);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -199,7 +229,8 @@ h2 {
   gap: 16px;
 }
 
-:deep(.el-input-number) {
+:deep(.el-input-number),
+:deep(.el-select) {
   width: 100%;
 }
 

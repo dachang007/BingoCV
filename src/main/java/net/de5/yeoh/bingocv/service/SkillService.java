@@ -16,4 +16,11 @@ public interface SkillService extends IService<Skill> {
      * @return 保存后的技能
      */
     Skill add(Skill skill);
+
+    /**
+     * 根据用户ID查询技能信息
+     * @param userId 用户ID
+     * @return 技能信息
+     */
+    Skill getByUserId(Long userId);
 }

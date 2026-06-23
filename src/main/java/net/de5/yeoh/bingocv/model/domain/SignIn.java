@@ -11,6 +11,9 @@ import lombok.experimental.SuperBuilder;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * 签到
+ */
 @TableName(value = "bingo_sign_in")
 @Data
 @EqualsAndHashCode(callSuper = true)

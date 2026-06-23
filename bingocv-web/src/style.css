@@ -181,46 +181,41 @@ textarea {
     color: var(--el-text-color-primary) !important;
 }
 
-/* ElMessage 弹窗样式 */
+/* 兜底修复服务式消息提示：保持顶部居中和横向排列，避免图标与文字被挤成竖排。 */
 .el-message {
-    white-space: nowrap !important;
-    border: 1px solid var(--light-border) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    --el-message-bg-color: var(--el-bg-color) !important;
-    --el-message-text-color: var(--el-text-color-primary) !important;
+    position: fixed !important;
+    top: var(--el-message-top, 20px) !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translateX(-50%) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    min-width: 280px !important;
+    max-width: min(520px, calc(100vw - 32px)) !important;
+    width: auto !important;
+    padding: 11px 15px !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+    writing-mode: horizontal-tb !important;
+    z-index: 9999 !important;
+}
+
+.el-message .el-message__icon {
+    flex: 0 0 auto !important;
+    margin-right: 0 !important;
 }
 
 .el-message .el-message__content {
-    color: var(--el-text-color-primary) !important;
-}
-
-.el-message--success {
-    --el-message-bg-color: var(--el-color-success-light-9) !important;
-    --el-message-border-color: var(--el-color-success-light-7) !important;
-}
-
-.el-message--error {
-    --el-message-bg-color: var(--el-color-error-light-9) !important;
-    --el-message-border-color: var(--el-color-error-light-7) !important;
-}
-
-.el-message--warning {
-    --el-message-bg-color: var(--el-color-warning-light-9) !important;
-    --el-message-border-color: var(--el-color-warning-light-7) !important;
-}
-
-.el-message--info {
-    --el-message-bg-color: var(--el-color-info-light-9) !important;
-    --el-message-border-color: var(--el-color-info-light-7) !important;
-}
-
-.message-bottom {
-    top: auto !important;
-    bottom: 20px !important;
-}
-
-.message-bottom .el-icon {
-    display: none !important;
+    display: block !important;
+    min-width: 0 !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    writing-mode: horizontal-tb !important;
 }
 
 /* ==========================================

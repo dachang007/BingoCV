@@ -9,6 +9,7 @@ import net.de5.yeoh.bingocv.common.api.CurrentUserInfo;
 import net.de5.yeoh.bingocv.common.api.Result;
 import net.de5.yeoh.bingocv.common.enums.InfoEnum;
 import net.de5.yeoh.bingocv.common.exception.InfoException;
+import net.de5.yeoh.bingocv.common.utils.AdminUtils;
 import net.de5.yeoh.bingocv.common.utils.mvc.UserContext;
 import net.de5.yeoh.bingocv.model.domain.Profiles;
 import net.de5.yeoh.bingocv.model.domain.User;
@@ -225,7 +226,7 @@ public class UserController {
             @RequestParam(required = false) String username,
             @RequestParam(required = false) Integer status) {
         
-        // TODO: 这里添加权限校验，只有管理员才能查看用户列表
+        requireAdmin();
         
         Map<String, Object> result = userService.getUserList(pageNum, pageSize, username, status);
         return Result.ok(result);
@@ -256,5 +257,28 @@ public class UserController {
             ip = ip.split(",")[0].trim();
         }
         return ip;
+    }
+
+    /**
+     * 更新用户状态（管理员）
+     * @param userId 用户ID
+     * @param status 状态（0-正常，1-禁用）
+     * @return 更新结果
+     */
+    @CheckLogin
+    @PutMapping("/{userId}/status")
+    @Operation(summary = "更新用户状态")
+    public Result<User> updateUserStatus(
+            @PathVariable Long userId,
+            @RequestParam Integer status) {
+        
+        requireAdmin();
+        
+        User user = userService.updateStatus(userId, status);
+        return Result.ok(user);
+    }
+
+    private void requireAdmin() {
+        AdminUtils.requireAdmin(userService);
     }
 }
