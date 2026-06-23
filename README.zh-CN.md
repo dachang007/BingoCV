@@ -283,8 +283,8 @@ db/bingocv_schema.sql
 ![简历模板](images/models.png)
 
 - **AI助理**
-![AI简历助手](images/Ai%20assistant.png)
-![AI简历助手](images/Ai%20review.png)
+![AI简历助手](images/ai_assistant.png)
+![AI简历助手](images/ai_review.png)
 
 - **简历导出**
 ![简历导出](images/export.png)

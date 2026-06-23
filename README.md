@@ -282,8 +282,8 @@ user:
 ![简历模板](images/models.png)
 
 - **Ai-Assistant**
-![AI简历助手](images/Ai%20assistant.png)
-![AI简历助手](images/Ai%20review.png)
+![AI简历助手](images/ai_assistant.png)
+![AI简历助手](images/ai_review.png)
 
 - **Export**
 ![Export](images/export.png)
