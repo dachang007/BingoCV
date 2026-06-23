@@ -277,21 +277,17 @@ db/bingocv_schema.sql
 ### 2. 系统展示
 
 - **数据看板**
-
-![主页](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBR2o56htBMxhLdNgYDTiYI_WmJnmgAAIXEGsbfU3QVW9EUFkVK61yAQADAgADdwADPAQ.png)
+![主页](images/dashboard.png)
 
 - **简历模板**
-
-![简历模板](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRmo56eFBHTa7RgesHn-AHIPL4MJ2AAIWEGsbfU3QVadhfbSioOzEAQADAgADdwADPAQ.png)
+![简历模板](images/models.png)
 
 - **AI助理**
-
-![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQmo42og3gATDIaWnyDpZyLKmQSSJAAKFE2sb__7JVUeGwhuqUk-bAQADAgADdwADPAQ.png)
-
-![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQ2o426oma1bP7pD_a3v3mRzQlLPNAAKTE2sb__7JVboKhUkLGSL2AQADAgADdwADPAQ.png)
+![AI简历助手](images/Ai%20assistant.png)
+![AI简历助手](images/Ai%20review.png)
 
 - **简历导出**
-![简历导出](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRWo56Y9xWbLfwPHBNOEITdk_T1rGAAIVEGsbfU3QVQ8W21wWS8snAQADAgADdwADPAQ.png)
-## License
+![简历导出](images/export.png)
 
+## License
 本项目使用 MIT License 开源。

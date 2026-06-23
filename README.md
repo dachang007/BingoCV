@@ -276,23 +276,17 @@ user:
 ### 2. Pictures
 
 - **Dashboard**
-
-![主页](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBR2o56htBMxhLdNgYDTiYI_WmJnmgAAIXEGsbfU3QVW9EUFkVK61yAQADAgADdwADPAQ.png)
+![主页](images/dashboard.png)
 
 - **CV-Models**
-
-![简历模板](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRmo56eFBHTa7RgesHn-AHIPL4MJ2AAIWEGsbfU3QVadhfbSioOzEAQADAgADdwADPAQ.png)
+![简历模板](images/models.png)
 
 - **Ai-Assistant**
-
-![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQmo42og3gATDIaWnyDpZyLKmQSSJAAKFE2sb__7JVUeGwhuqUk-bAQADAgADdwADPAQ.png)
-
-![AI简历助手](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBQ2o426oma1bP7pD_a3v3mRzQlLPNAAKTE2sb__7JVboKhUkLGSL2AQADAgADdwADPAQ.png)
+![AI简历助手](images/Ai%20assistant.png)
+![AI简历助手](images/Ai%20review.png)
 
 - **Export**
-
-![Export](https://imags-563.pages.dev/file/AgACAgUAAxkDAAIBRWo56Y9xWbLfwPHBNOEITdk_T1rGAAIVEGsbfU3QVQ8W21wWS8snAQADAgADdwADPAQ.png)
+![Export](images/export.png)
 
 ## License
-
 This project is released under the MIT License.
